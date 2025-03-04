@@ -1,4 +1,4 @@
-// Package pkg nmapScannerLogic.go
+// Package pkg provides network scanning functionality and tools for the GopherStrike framework
 package pkg
 
 import (
@@ -10,7 +10,9 @@ import (
 	"strings"
 )
 
-func checkRoot() bool {
+// CheckRoot determines if the program is running with elevated privileges
+// Returns true if running as root/admin, false otherwise
+func CheckRoot() bool {
 	// On Unix-like systems, root has UID 0
 	if runtime.GOOS != "windows" && os.Geteuid() != 0 {
 		return false
@@ -18,8 +20,10 @@ func checkRoot() bool {
 	return true
 }
 
-func runNmapScannerWithPrivCheck() error {
-	if !checkRoot() {
+// RunNmapScannerWithPrivCheck executes the nmap scanner with appropriate privileges
+// It handles privilege escalation differently based on the operating system
+func RunNmapScannerWithPrivCheck() error {
+	if !CheckRoot() {
 		if runtime.GOOS == "darwin" {
 			// Get the path to the Python in the virtual environment
 			venvPythonPath := "./.venv/bin/python3"
@@ -64,7 +68,9 @@ func runNmapScannerWithPrivCheck() error {
 				fmt.Println("Launching with admin privileges using virtual environment...")
 				absVenvPath, _ := filepath.Abs(venvPythonPath)
 				// Create logs directory in advance to avoid permission issues
-				os.MkdirAll("logs", 0755)
+				if err := os.MkdirAll("logs", 0755); err != nil {
+					fmt.Printf("Warning: Failed to create logs directory: %v\n", err)
+				}
 
 				cmd := exec.Command("osascript", "-e",
 					fmt.Sprintf(`do shell script "%s %s --target %s %s" with administrator privileges`,
@@ -145,6 +151,23 @@ func runNmapScannerWithPrivCheck() error {
 			// Fallback to terminal sudo method
 			fmt.Println("Please run from terminal: sudo go run main.go")
 			return fmt.Errorf("cannot elevate privileges in this environment")
+		} else if runtime.GOOS == "windows" {
+			// Windows-specific elevation
+			scriptPath, err := filepath.Abs("pkg/tools/NmapScript.py")
+			if err != nil {
+				return fmt.Errorf("error getting absolute path: %w", err)
+			}
+
+			// Use PowerShell to run as admin
+			cmd := exec.Command("powershell", "Start-Process", "python",
+				"-ArgumentList", scriptPath, "-Verb", "RunAs")
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+
+			if err := cmd.Run(); err != nil {
+				return fmt.Errorf("error running with admin privileges: %w", err)
+			}
+			return nil
 		} else {
 			// Other OS implementations...
 			fmt.Println("Please run from terminal: sudo go run main.go")
@@ -163,7 +186,9 @@ func runNmapScannerWithPrivCheck() error {
 	}
 
 	// Create logs directory in advance to avoid permission issues
-	os.MkdirAll("logs", 0755)
+	if err := os.MkdirAll("logs", 0755); err != nil {
+		fmt.Printf("Warning: Failed to create logs directory: %v\n", err)
+	}
 
 	// Get working directory to ensure correct path resolution
 	workDir, err := os.Getwd()
@@ -184,9 +209,8 @@ cd "%s"
 			return fmt.Errorf("error creating temporary script: %w", err)
 		}
 		defer func(name string) {
-			err := os.Remove(name)
-			if err != nil {
-
+			if err := os.Remove(name); err != nil {
+				fmt.Printf("Warning: Failed to remove temporary script: %v\n", err)
 			}
 		}(tempScript)
 

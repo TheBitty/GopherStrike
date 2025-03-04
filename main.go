@@ -22,7 +22,7 @@ func displayBanner() {
 
 // mainMenu displays and handles the main application menu
 func mainMenu() {
-	displayBanner()
+	displayBanner() // this will have to get changed around
 	fmt.Println("\nAvailable Tools:")
 	fmt.Println("================")
 	fmt.Println("1. Port Scanner")

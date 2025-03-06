@@ -12,7 +12,7 @@ GopherStrike is a work-in-progress red team framework written in Go, designed to
 - **OSINT Tools**: Integrate OSINT capabilities to gather information from publicly available sources.
 - **Additional Vulnerability Scanners**: Incorporate multiple vulnerability scanners to identify security weaknesses in systems and applications.
 - **Subdomain Enumeration**: Use a sublist scanner to discover subdomains associated with target domains.
-- **Red Team Operations**: Everything needed for a full red team framework, including post-exploitation tools and reporting capabilities.
+- **Red Team Operations**: Everything needed for a red team framework, post-exploitation tools will be done by my other project BitStrike.
 
 ## Installation
 

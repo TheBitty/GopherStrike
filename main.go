@@ -26,8 +26,9 @@ func mainMenu() {
 	fmt.Println("\nAvailable Tools:")
 	fmt.Println("================")
 	fmt.Println("1. Port Scanner")
-	fmt.Println("2. Check Dependencies")
-	fmt.Println("3. Exit")
+	fmt.Println("2. Subdomain Scanner")
+	fmt.Println("3. Check Dependencies")
+	fmt.Println("4. Exit")
 
 	var choice string
 	fmt.Print("\nSelect a tool: ")

@@ -5,6 +5,7 @@ GopherStrike is a work-in-progress red team framework written in Go, designed to
 ## Current Features
 
 - **Port Scanner**: A tool for scanning and identifying open ports on target systems.
+-  **SubDomain Buster **: A work in progress subdoman scanner(user most have their own sec lists).
 
 ## Planned Features
 

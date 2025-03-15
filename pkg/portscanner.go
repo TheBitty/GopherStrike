@@ -43,51 +43,51 @@ func RunNmapScannerWithPrivCheck() error {
 	// Use a process group to ensure we can terminate all child processes
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 
-	// Start the command
-	if err = cmd.Start(); err != nil {
-		return fmt.Errorf("failed to start nmap scanner: %v", err)
-	}
-
-	// Create a channel for signal propagation
+	// Create a channel for handling signals internally
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
 
-	// Wait for the command to complete or for a signal
-	done := make(chan error, 1)
-	go func() {
-		done <- cmd.Wait()
-	}()
-
-	// Wait for command completion or signal
-	var cmdErr error
-	select {
-	case cmdErr = <-done:
-		// Command completed normally
+	// Start the command
+	if err = cmd.Start(); err != nil {
 		signal.Stop(sigChan)
-	case <-sigChan:
-		// Received interrupt signal, kill the process group
-		fmt.Println("\nScan interrupted by user. Exiting...")
+		return fmt.Errorf("failed to start nmap scanner: %v", err)
+	}
 
-		// Kill the process group
-		pgid, err := syscall.Getpgid(cmd.Process.Pid)
-		if err == nil {
-			// On Unix systems, negative PID means kill process group
-			if runtime.GOOS != "windows" {
-				syscall.Kill(-pgid, syscall.SIGKILL)
+	// Handle interruption in separate goroutine
+	interrupted := false
+	go func() {
+		select {
+		case <-sigChan:
+			// Process received a signal
+			interrupted = true
+
+			// Kill the process group
+			pgid, err := syscall.Getpgid(cmd.Process.Pid)
+			if err == nil {
+				// On Unix systems, negative PID means kill process group
+				if runtime.GOOS != "windows" {
+					// Just terminate directly with SIGKILL to avoid additional output
+					syscall.Kill(-pgid, syscall.SIGKILL)
+				} else {
+					// Windows doesn't have process groups in the same way
+					cmd.Process.Kill()
+				}
 			} else {
-				// Windows doesn't have process groups in the same way
+				// Fallback to just killing the process
 				cmd.Process.Kill()
 			}
-		} else {
-			// Fallback to just killing the process
-			cmd.Process.Kill()
 		}
+	}()
 
-		// Wait for process to exit
-		cmdErr = <-done
+	// Wait for command to complete
+	cmdErr := cmd.Wait()
 
-		// Return a special error for interruption
-		return fmt.Errorf("scan interrupted")
+	// Stop listening for signals
+	signal.Stop(sigChan)
+
+	// If we were interrupted, just return nil (no error)
+	if interrupted {
+		return nil
 	}
 
 	// Special handling for exit code 2 (admin privileges required)
@@ -166,7 +166,7 @@ func checkNmapDependency() error {
 	// Find Python interpreter
 	pythonCmd, err := findPythonInterpreter()
 	if err != nil {
-		return fmt.Errorf("Python interpreter not found: %v", err)
+		return fmt.Errorf("oython interpreter not found: %v", err)
 	}
 
 	// Create a temporary check script
@@ -201,7 +201,7 @@ except ImportError:
 	}
 
 	if strings.Contains(string(output), "MODULE_MISSING") {
-		return fmt.Errorf("Python module 'nmap' not found. Please install it with: pip install python-nmap")
+		return fmt.Errorf("oython module 'nmap' not found. Please install it with: pip install python-nmap")
 	}
 
 	return nil
@@ -214,7 +214,7 @@ func installPythonNmap() error {
 	// Find Python interpreter
 	pythonCmd, err := findPythonInterpreter()
 	if err != nil {
-		return fmt.Errorf("Python interpreter not found: %v", err)
+		return fmt.Errorf("oython interpreter not found: %v", err)
 	}
 
 	// Determine if we're in a virtual environment

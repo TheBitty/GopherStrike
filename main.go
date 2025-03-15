@@ -6,6 +6,7 @@ import (
 	"GopherStrike/utils"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/gdamore/tcell/v2"
 )
@@ -125,39 +126,53 @@ func executeTool(toolName string, toolFunc func() error) {
 	utils.ClearScreen()
 	displayToolBanner(toolName)
 
-	// Start the interrupt listener
+	// Show a minimal instruction
+	fmt.Println("\nPress Ctrl+C at any time to return to main menu")
+
+	// Start the interrupt listener (now only for Ctrl+C)
 	interruptCh := utils.StartInterruptListener()
 
 	// Run the tool in a separate goroutine
 	resultCh := make(chan error, 1)
+	toolDone := make(chan struct{})
 	go func() {
-		resultCh <- toolFunc()
+		err := toolFunc()
+		resultCh <- err
+		close(toolDone)
 	}()
 
 	// Wait for either the tool to complete or an interrupt
 	var err error
+	interrupted := false
 	select {
 	case err = <-resultCh:
 		// Tool completed normally
 	case <-interruptCh:
-		// Tool was interrupted
-		fmt.Println("\nTool execution interrupted by user.")
-		err = fmt.Errorf("tool execution interrupted")
+		// Tool was interrupted by Ctrl+C
+		interrupted = true
+		// Wait for the tool to actually finish (after being killed)
+		<-toolDone
 	}
 
 	// Stop the interrupt listener
 	utils.StopInterruptListener()
 
-	// Display error message if there was an error (and it wasn't just an interruption)
-	if err != nil && err.Error() != "tool execution interrupted" {
+	// Display error message if there was an error (and not interrupted)
+	if err != nil && !interrupted {
 		fmt.Println("\nError:", err)
 	}
 
-	// Only wait for ESC key if we weren't already interrupted
-	if err == nil || err.Error() != "tool execution interrupted" {
-		fmt.Println("\nPress ESC to return to main menu...")
-		utils.WaitForKeyPress(tcell.KeyEscape)
+	// Brief message if interrupted
+	if interrupted {
+		fmt.Println("\nReturning to main menu...")
+		// Brief pause
+		time.Sleep(500 * time.Millisecond)
+		return
 	}
+
+	// Wait for ESC key to return to main menu
+	fmt.Println("\nPress ESC to return to main menu...")
+	utils.WaitForKeyPress(tcell.KeyEscape)
 }
 
 // main is the entry point for the application

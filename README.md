@@ -56,7 +56,7 @@
 
 ```bash
 # Download the latest release (replace X.Y.Z with version number)
-curl -L https://github.com/yourusername/GopherStrike/releases/download/vX.Y.Z/gopherstrike-$(uname -s)-$(uname -m) -o gopherstrike
+curl -L https://github.com/TheBitty/GopherStrike/releases/download/vX.Y.Z/gopherstrike-$(uname -s)-$(uname -m) -o gopherstrike
 
 # Make executable
 chmod +x gopherstrike
@@ -69,7 +69,7 @@ chmod +x gopherstrike
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/GopherStrike.git
+git clone https://github.com/TheBitty/GopherStrike.git
 
 # Navigate to the project directory
 cd GopherStrike
@@ -84,7 +84,7 @@ go build -o gopherstrike
 ### Option 3: Using Go Install
 
 ```bash
-go install github.com/yourusername/GopherStrike@latest
+go install github.com/TheBitty/GopherStrike@latest
 ```
 
 ## 💻 Usage
@@ -141,10 +141,6 @@ tools:
     wordlist: "~/.gopherstrike/wordlists/subdomains.txt"
     threads: 50
 ```
-
-## 📚 Documentation
-
-For detailed documentation on each tool and advanced configuration options, visit the [GopherStrike Wiki](https://github.com/yourusername/GopherStrike/wiki).
 
 ## 🛡️ Ethical Use
 

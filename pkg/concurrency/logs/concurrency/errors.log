@@ -1,0 +1,1 @@
+2025-03-15 01:04:19 [[31mERROR[0m] worker.go:93: Worker 1: panic executing task panic-task: test panic

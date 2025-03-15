@@ -1,4 +1,4 @@
-// SubTapper.go
+// Package tools SubTapper.go
 package tools
 
 import (
@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"os"
@@ -48,7 +49,7 @@ type ScanResult struct {
 
 // ScanOptions defines options for subdomain scanning
 type ScanOptions struct {
-	WordlistPath string // Path to wordlist file
+	WordlistPath string // Path to a wordlist file
 	Threads      int    // Number of concurrent goroutines
 	CheckHTTP    bool   // Whether to check HTTP status
 	CheckSSL     bool   // Whether to check SSL certificates
@@ -190,7 +191,7 @@ func checkSubdomain(word, domain string, options ScanOptions, resultChan chan<- 
 			}
 		}
 
-		// Check HTTP status if requested
+		// Check the HTTP status if requested
 		if options.CheckHTTP {
 			status, err := checkHTTPStatus(fullDomain, options.Timeout)
 			if err == nil && status > 0 {
@@ -227,14 +228,24 @@ func checkHTTPStatus(domain string, timeout int) (int, error) {
 	// Try HTTPS first
 	resp, err := client.Get(fmt.Sprintf("https://%s", domain))
 	if err == nil {
-		defer resp.Body.Close()
+		defer func(Body io.ReadCloser) {
+			err := Body.Close()
+			if err != nil {
+
+			}
+		}(resp.Body)
 		return resp.StatusCode, nil
 	}
 
 	// Fall back to HTTP
-	resp, err = client.Get(fmt.Sprintf("http://%s", domain))
+	resp, err = client.Get(fmt.Sprintf("https://%s", domain))
 	if err == nil {
-		defer resp.Body.Close()
+		defer func(Body io.ReadCloser) {
+			err := Body.Close()
+			if err != nil {
+
+			}
+		}(resp.Body)
 		return resp.StatusCode, nil
 	}
 
@@ -247,7 +258,12 @@ func loadWordlist(path string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+
+		}
+	}(file)
 
 	var words []string
 	scanner := bufio.NewScanner(file)

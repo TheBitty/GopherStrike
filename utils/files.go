@@ -21,3 +21,8 @@ func ClearScreen() {
 		return
 	}
 }
+
+func exitMenu() {
+	ClearScreen()
+
+}

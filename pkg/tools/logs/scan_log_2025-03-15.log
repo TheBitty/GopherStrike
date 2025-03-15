@@ -10,3 +10,21 @@ Scan interrupted by user. Exiting...
 2025-03-15 02:34:21,093 - INFO - Starting advanced port scanner
 2025-03-15 02:36:21,527 - INFO - Starting advanced port scanner
 2025-03-15 12:28:47,797 - INFO - Starting advanced port scanner
+2025-03-15 15:49:56,554 - INFO - Starting advanced port scanner
+2025-03-15 15:50:00,161 - INFO - Starting advanced port scanner
+2025-03-15 15:50:07,706 - INFO - Target selected interactively: 10.10.10.133
+2025-03-15 15:50:07,706 - INFO - 
+Select port range to scan:
+2025-03-15 15:50:07,706 - INFO - 1. Common ports (1-1024)
+2025-03-15 15:50:07,706 - INFO - 2. Extended range (1-5000)
+2025-03-15 15:50:07,706 - INFO - 3. Full range (1-65535)
+2025-03-15 15:50:07,706 - INFO - 4. Custom range
+2025-03-15 15:50:08,489 - INFO - Port range selected interactively: 1-1024
+2025-03-15 15:50:08,489 - INFO - 
+Starting scan at: 2025-03-15 15:50:08
+2025-03-15 15:50:08,489 - INFO - 
+Scanning 10.10.10.133 for open ports...
+2025-03-15 15:50:11,135 - INFO - 
+Scan completed! Found 0 open ports
+2025-03-15 15:50:11,136 - INFO - 
+No open ports found.

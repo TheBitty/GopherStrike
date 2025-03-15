@@ -121,7 +121,10 @@ def validate_ip(ip):
 
 def get_target_ip():
     """Get and validate target IP with user feedback"""
-    while True:
+    max_attempts = 3
+    attempt = 0
+    
+    while attempt < max_attempts:
         target = input("Enter target IP: ")
         ip, is_valid = validate_ip(target)
 
@@ -130,12 +133,19 @@ def get_target_ip():
         else:
             logger.warning(f"[-] Invalid IP address: {target}")
             logger.info("[!] Please enter a valid IP (e.g., 192.168.1.1)")
-            continue
+            attempt += 1
+    
+    # If we've reached max attempts, use a default IP (localhost)
+    logger.warning("Maximum attempts reached. Using default IP (127.0.0.1).")
+    return "127.0.0.1"
 
 
 def get_port_range():
     """Get custom port range from user"""
-    while True:
+    max_attempts = 3
+    attempt = 0
+    
+    while attempt < max_attempts:
         try:
             logger.info("\nSelect port range to scan:")
             logger.info("1. Common ports (1-1024)")
@@ -152,16 +162,30 @@ def get_port_range():
             elif choice == '3':
                 return 1, 65535
             elif choice == '4':
-                start = int(input("Enter start port: "))
-                end = int(input("Enter end port: "))
-                if 0 < start < end <= 65535:
-                    return start, end
-                else:
-                    logger.warning("Invalid port range!")
+                try:
+                    start = int(input("Enter start port: "))
+                    end = int(input("Enter end port: "))
+                    if 0 < start < end <= 65535:
+                        return start, end
+                    else:
+                        logger.warning("Invalid port range! Ports must be between 1 and 65535, and start must be less than end.")
+                        attempt += 1
+                except ValueError:
+                    logger.warning("Please enter valid numbers for port range!")
+                    attempt += 1
             else:
-                logger.warning("Invalid choice!")
+                logger.warning("Invalid choice! Please enter a number between 1 and 4.")
+                attempt += 1
         except ValueError:
             logger.warning("Please enter valid numbers!")
+            attempt += 1
+        except Exception as e:
+            logger.error(f"Unexpected error getting port range: {e}")
+            attempt += 1
+    
+    # If we've reached max attempts, return a default range
+    logger.warning("Maximum attempts reached. Using default port range (1-1024).")
+    return 1, 1024
 
 
 def scan_ports(target, start_port, end_port):
@@ -607,6 +631,8 @@ if __name__ == "__main__":
         else:
             target = get_target_ip()
             logger.info(f"Target selected interactively: {target}")
+            # Force a newline after getting the target IP to ensure the port range prompt is visible
+            print("")
 
         # Get port range
         if args.port_choice:
@@ -630,7 +656,11 @@ if __name__ == "__main__":
                 logger.warning("Invalid custom port range, using default")
                 start_port, end_port = 1, 1024
         else:
+            # Ensure this function is called and its output is properly captured
             start_port, end_port = get_port_range()
+            if start_port is None or end_port is None:
+                logger.warning("Failed to get port range, using default")
+                start_port, end_port = 1, 1024
             logger.info(f"Port range selected interactively: {start_port}-{end_port}")
 
         # Start scanning

@@ -50,7 +50,9 @@ func RunReportingModule() error {
 		_, err := fmt.Scanln(&choice)
 		if err != nil {
 			// Clear input buffer
-			fmt.Scanln()
+			if _, err := fmt.Scanln(); err != nil {
+				// Ignore error from clearing the buffer; it's just cleanup
+			}
 			fmt.Println("Invalid input. Please try again.")
 			continue
 		}
@@ -120,7 +122,11 @@ func listExistingReports() error {
 
 	fmt.Print("\nEnter report number to view (or 0 to return): ")
 	var choice int
-	fmt.Scanln(&choice)
+	if _, err := fmt.Scanln(&choice); err != nil {
+		// Just log the error and continue with default choice (0)
+		fmt.Printf("Error reading input: %v\n", err)
+		choice = 0
+	}
 
 	if choice == 0 || choice > len(reports) {
 		return nil
@@ -203,7 +209,11 @@ func convertReportFormat() error {
 
 	fmt.Print("\nEnter report number to convert (or 0 to return): ")
 	var choice int
-	fmt.Scanln(&choice)
+	if _, err := fmt.Scanln(&choice); err != nil {
+		// Just log the error and continue with default choice (0)
+		fmt.Printf("Error reading input: %v\n", err)
+		choice = 0
+	}
 
 	if choice == 0 || choice > len(allReports) {
 		return nil
@@ -235,7 +245,12 @@ func convertReportFormat() error {
 
 	// Create a temporary report options for conversion
 	options := DefaultReportOptions()
-	options.Format = targetFormat
+	// Convert string to ReportFormat
+	if targetFormat == "html" {
+		options.Format = FormatHTML
+	} else {
+		options.Format = FormatMarkdown
+	}
 	options.OutputFile = outputPath
 
 	// Create a report generator

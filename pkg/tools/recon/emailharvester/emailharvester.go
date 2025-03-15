@@ -424,7 +424,10 @@ func RunEmailHarvester() error {
 	// Get target domain
 	fmt.Print("[?] Enter target domain (e.g., example.com): ")
 	var domain string
-	fmt.Scanln(&domain)
+	if _, err := fmt.Scanln(&domain); err != nil {
+		// Just log the error and continue since this is a user prompt
+		fmt.Printf("Error reading input: %v\n", err)
+	}
 
 	if domain == "" {
 		return fmt.Errorf("target domain is required")
@@ -436,7 +439,10 @@ func RunEmailHarvester() error {
 	// Configure max depth
 	fmt.Print("[?] Maximum crawl depth (default: 2): ")
 	var depthStr string
-	fmt.Scanln(&depthStr)
+	if _, err := fmt.Scanln(&depthStr); err != nil {
+		// Just log the error and continue with default value
+		fmt.Printf("Error reading input: %v\n", err)
+	}
 
 	if depthStr != "" {
 		if depth, err := strconv.Atoi(depthStr); err == nil && depth > 0 {
@@ -447,7 +453,10 @@ func RunEmailHarvester() error {
 	// Configure subdomain inclusion
 	fmt.Print("[?] Include subdomains? (Y/n): ")
 	var includeSubdomains string
-	fmt.Scanln(&includeSubdomains)
+	if _, err := fmt.Scanln(&includeSubdomains); err != nil {
+		// Just log the error and continue with default value (Yes)
+		fmt.Printf("Error reading input: %v\n", err)
+	}
 
 	if strings.ToLower(includeSubdomains) == "n" {
 		options.IncludeSubdomains = false
@@ -456,7 +465,10 @@ func RunEmailHarvester() error {
 	// Configure search engines
 	fmt.Print("[?] Use search engines for discovery? (Y/n): ")
 	var useSearchEngines string
-	fmt.Scanln(&useSearchEngines)
+	if _, err := fmt.Scanln(&useSearchEngines); err != nil {
+		// Just log the error and continue with default value (Yes)
+		fmt.Printf("Error reading input: %v\n", err)
+	}
 
 	if strings.ToLower(useSearchEngines) == "n" {
 		options.SearchEngines = false

@@ -55,6 +55,7 @@ jobs:
       with:
         version: latest
         args: --timeout=5m
+        only-new-issues: true
 
     - name: Run Go Report Card
       uses: creekorful/goreportcard-action@v1.0 

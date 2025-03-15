@@ -517,7 +517,10 @@ func RunDirBruteforce() error {
 	// Ask for threads
 	fmt.Printf("[?] Enter number of threads (default: %d): ", options.Threads)
 	var threads string
-	fmt.Scanln(&threads)
+	if _, err := fmt.Scanln(&threads); err != nil {
+		// Just log the error and continue with default value
+		fmt.Printf("Error reading input: %v\n", err)
+	}
 	if threads != "" {
 		threadsInt, err := strconv.Atoi(threads)
 		if err == nil && threadsInt > 0 {
@@ -528,7 +531,10 @@ func RunDirBruteforce() error {
 	// Ask for output file
 	fmt.Printf("[?] Save results to file? (default: %s, leave empty for no file): ", options.OutputFile)
 	var outputFile string
-	fmt.Scanln(&outputFile)
+	if _, err := fmt.Scanln(&outputFile); err != nil {
+		// Just log the error and continue with default value
+		fmt.Printf("Error reading input: %v\n", err)
+	}
 	options.OutputFile = outputFile
 
 	// Create scanner and run scan

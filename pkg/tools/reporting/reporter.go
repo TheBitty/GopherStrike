@@ -34,6 +34,9 @@ const (
 	StatusInProgress VulnerabilityStatus = "In Progress"
 )
 
+// Define DefaultFormat as the default report format
+const DefaultFormat = FormatMarkdown
+
 // Evidence represents evidence for a vulnerability
 type Evidence struct {
 	Description string
@@ -62,38 +65,59 @@ type Vulnerability struct {
 
 // ReportOptions represents options for report generation
 type ReportOptions struct {
-	Title               string
-	Format              string // markdown, html, pdf
-	TemplateFile        string
-	OutputFile          string
-	IncludeExecutive    bool
-	IncludeTechnical    bool
-	IncludeRemediation  bool
-	IncludeEvidence     bool
-	CompanyName         string
-	LogoPath            string
-	AuthorName          string
-	ConfidentialityNote string
-	CustomCSS           string
+	Title                        string
+	Format                       ReportFormat // Changed from string to ReportFormat
+	TemplateFile                 string
+	OutputFile                   string
+	IncludeExecutive             bool
+	IncludeTechnical             bool
+	IncludeRemediation           bool
+	IncludeEvidence              bool
+	IncludeSampleRecommendations bool // Added missing field
+	CompanyName                  string
+	LogoPath                     string
+	AuthorName                   string
+	ConfidentialityNote          string
+	CustomCSS                    string
 }
 
 // DefaultReportOptions returns default report options
 func DefaultReportOptions() ReportOptions {
 	return ReportOptions{
-		Title:               "Security Assessment Report",
-		Format:              "markdown",
-		TemplateFile:        "",
-		OutputFile:          "reports/security_report.md",
-		IncludeExecutive:    true,
-		IncludeTechnical:    true,
-		IncludeRemediation:  true,
-		IncludeEvidence:     true,
-		CompanyName:         "GopherStrike Security",
-		LogoPath:            "",
-		AuthorName:          "",
-		ConfidentialityNote: "CONFIDENTIAL - FOR INTERNAL USE ONLY",
-		CustomCSS:           "",
+		Title:                        "Security Assessment Report",
+		Format:                       FormatMarkdown,
+		TemplateFile:                 "",
+		OutputFile:                   "reports/security_report.md",
+		IncludeExecutive:             true,
+		IncludeTechnical:             true,
+		IncludeRemediation:           true,
+		IncludeEvidence:              true,
+		IncludeSampleRecommendations: true, // Added missing field
+		CompanyName:                  "GopherStrike Security",
+		LogoPath:                     "",
+		AuthorName:                   "",
+		ConfidentialityNote:          "CONFIDENTIAL - FOR INTERNAL USE ONLY",
+		CustomCSS:                    "",
 	}
+}
+
+// sanitizeFilename sanitizes a filename by replacing invalid characters
+func sanitizeFilename(name string) string {
+	// Replace characters that are invalid in filenames
+	replacer := strings.NewReplacer(
+		"/", "-",
+		"\\", "-",
+		":", "-",
+		"*", "-",
+		"?", "-",
+		"\"", "-",
+		"<", "-",
+		">", "-",
+		"|", "-",
+		" ", "_",
+	)
+
+	return replacer.Replace(name)
 }
 
 // Report represents a vulnerability report
@@ -208,10 +232,10 @@ func (r *ReportGenerator) SaveReport(report *Report) error {
 	var content string
 	var err error
 
-	switch strings.ToLower(report.Options.Format) {
-	case "markdown":
+	switch report.Options.Format {
+	case FormatMarkdown:
 		content, err = r.generateMarkdownReport(report)
-	case "html":
+	case FormatHTML:
 		content, err = r.generateHTMLReport(report)
 	default:
 		return fmt.Errorf("unsupported report format: %s", report.Options.Format)
@@ -556,59 +580,86 @@ func RunReportGenerator() error {
 	options := DefaultReportOptions()
 
 	// Get report title
-	fmt.Printf("[?] Report title (default: %s): ", options.Title)
+	fmt.Print("[?] Enter report title: ")
 	var title string
-	fmt.Scanln(&title)
-	if title != "" {
-		options.Title = title
+	if _, err := fmt.Scanln(&title); err != nil {
+		// Just log the error and continue with an empty title
+		fmt.Printf("Error reading input: %v\n", err)
 	}
 
-	// Get output format
-	fmt.Print("[?] Output format (markdown/html) [default: markdown]: ")
+	options.Title = title
+
+	// Get report format
+	fmt.Printf("[?] Select report format (markdown, html) [default: %s]: ", string(DefaultFormat))
 	var format string
-	fmt.Scanln(&format)
-	if format != "" {
-		options.Format = strings.ToLower(format)
+	if _, err := fmt.Scanln(&format); err != nil {
+		// Just log the error and continue with the default format
+		fmt.Printf("Error reading input: %v\n", err)
+		format = string(DefaultFormat)
+	}
+
+	if format == "" {
+		format = string(DefaultFormat)
+	}
+
+	// Validate format
+	switch ReportFormat(format) {
+	case FormatMarkdown, FormatHTML:
+		options.Format = ReportFormat(format)
+	default:
+		fmt.Printf("Invalid format: %s. Using default: %s\n", format, DefaultFormat)
+		options.Format = DefaultFormat
 	}
 
 	// Get output file
-	defaultExt := ".md"
-	if options.Format == "html" {
-		defaultExt = ".html"
-	}
-	defaultOutput := fmt.Sprintf("reports/security_report%s", defaultExt)
-
-	fmt.Printf("[?] Output file (default: %s): ", defaultOutput)
+	fmt.Print("[?] Enter output file path (leave empty for auto-generated): ")
 	var outputFile string
-	fmt.Scanln(&outputFile)
-	if outputFile != "" {
-		options.OutputFile = outputFile
-	} else {
-		options.OutputFile = defaultOutput
+	if _, err := fmt.Scanln(&outputFile); err != nil {
+		// Just log the error and continue with an empty output file path
+		fmt.Printf("Error reading input: %v\n", err)
+	}
+
+	options.OutputFile = outputFile
+
+	// If no output file specified, generate one based on title and format
+	if options.OutputFile == "" {
+		options.OutputFile = filepath.Join("reports", sanitizeFilename(options.Title)+"."+strings.ToLower(string(options.Format)))
 	}
 
 	// Get company name
-	fmt.Printf("[?] Company name (default: %s): ", options.CompanyName)
+	fmt.Print("[?] Enter company name (optional): ")
 	var companyName string
-	fmt.Scanln(&companyName)
-	if companyName != "" {
-		options.CompanyName = companyName
+	if _, err := fmt.Scanln(&companyName); err != nil {
+		// Just log the error and continue with an empty company name
+		fmt.Printf("Error reading input: %v\n", err)
 	}
 
+	options.CompanyName = companyName
+
 	// Get author name
-	fmt.Print("[?] Author name: ")
-	fmt.Scanln(&options.AuthorName)
+	fmt.Print("[?] Enter author name (optional): ")
+	if _, err := fmt.Scanln(&options.AuthorName); err != nil {
+		// Just log the error and continue with an empty author name
+		fmt.Printf("Error reading input: %v\n", err)
+	}
+
+	// Include sample recommendations
+	fmt.Print("[?] Include sample recommendations? (y/n) [default: y]: ")
+	var includeSamples string
+	if _, err := fmt.Scanln(&includeSamples); err != nil {
+		// Just log the error and continue with the default value (yes)
+		fmt.Printf("Error reading input: %v\n", err)
+		includeSamples = "y"
+	}
+
+	options.IncludeSampleRecommendations = (includeSamples != "n" && includeSamples != "N")
 
 	// Create report generator
 	reportGen := NewReportGenerator(options)
 
 	// Add some sample vulnerabilities for demonstration
 	// In a real implementation, these would be loaded from scan results
-	fmt.Print("[?] Do you want to include sample vulnerabilities for demonstration? (Y/n): ")
-	var includeSamples string
-	fmt.Scanln(&includeSamples)
-
-	if includeSamples == "" || strings.ToLower(includeSamples) == "y" {
+	if options.IncludeSampleRecommendations {
 		// Add sample SQL Injection vulnerability
 		sqlInjection := Vulnerability{
 			Title:       "SQL Injection in Login Form",

@@ -26,7 +26,11 @@ func TestMain(m *testing.M) {
 
 func setupTestEnvironment() {
 	// Create test log directories
-	os.MkdirAll("logs/webvuln_test", 0755)
+	if err := os.MkdirAll("logs/webvuln_test", 0755); err != nil {
+		// Log error but continue since tests might still run in some cases
+		// without the directory
+		println("Warning: Failed to create test log directory:", err.Error())
+	}
 }
 
 func cleanupTestEnvironment() {

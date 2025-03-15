@@ -41,7 +41,9 @@ func TestIntegration(t *testing.T) {
 		</html>
 		`
 		w.Header().Set("Content-Type", "text/html")
-		w.Write([]byte(content))
+		if _, err := w.Write([]byte(content)); err != nil {
+			t.Logf("Error writing response: %v", err)
+		}
 	})
 
 	// Create the test server
@@ -49,7 +51,9 @@ func TestIntegration(t *testing.T) {
 	defer server.Close()
 
 	// Ensure log directory exists
-	os.MkdirAll("logs/webvuln_test", 0755)
+	if err := os.MkdirAll("logs/webvuln_test", 0755); err != nil {
+		t.Fatalf("Failed to create log directory: %v", err)
+	}
 
 	// Configure the scanner
 	options := webvuln.DefaultScanOptions()

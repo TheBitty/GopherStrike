@@ -100,7 +100,10 @@ func RunScanner() error {
 
 	// Confirm scan
 	fmt.Print("\nPress Enter to start the scan or Ctrl+C to abort...")
-	fmt.Scanln()
+	if _, err := fmt.Scanln(); err != nil {
+		// Just log the error and continue since this is just a user prompt
+		fmt.Printf("Error reading input: %v\n", err)
+	}
 
 	fmt.Printf("\nStarting subdomain scan for: %s\n", domain)
 	fmt.Println("This may take a while depending on wordlist size...")

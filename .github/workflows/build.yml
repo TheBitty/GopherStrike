@@ -39,12 +39,22 @@ jobs:
 
     - name: Check out code
       uses: actions/checkout@v2
+      
+    - name: Go Cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
 
     - name: Lint
       uses: golangci/golangci-lint-action@v2
       with:
         version: latest
-        args: --timeout=5m
+        args: --out-format=colored-line-number --timeout=5m
 
     - name: Run Go Report Card
       uses: creekorful/goreportcard-action@v1.0 

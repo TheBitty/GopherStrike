@@ -18,6 +18,8 @@ func ClearScreen() {
 	cmd.Stdout = os.Stdout
 	err := cmd.Run()
 	if err != nil {
+		// Ignoring error as screen clearing is not critical
+		// and should not impact the application's functionality
 		return
 	}
 }

@@ -88,7 +88,6 @@ func TestWorkerPoolPanic(t *testing.T) {
 	// Create a task that panics
 	panicTask := NewSimpleTask("panic-task", func() interface{} {
 		panic("test panic")
-		return nil
 	})
 
 	// Submit the task

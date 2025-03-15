@@ -56,32 +56,32 @@ func RunNmapScannerWithPrivCheck() error {
 	// Handle interruption in separate goroutine
 	interrupted := false
 	go func() {
-		select {
-		case <-sigChan:
-			// Process received a signal
-			interrupted = true
+		// Wait for signal and directly handle it - no need for select with single case
+		<-sigChan
 
-			// Kill the process group
-			pgid, err := syscall.Getpgid(cmd.Process.Pid)
-			if err == nil {
-				// On Unix systems, negative PID means kill process group
-				if runtime.GOOS != "windows" {
-					// Just terminate directly with SIGKILL to avoid additional output
-					if err := syscall.Kill(-pgid, syscall.SIGKILL); err != nil {
-						// Log the error but continue execution as we're in cleanup
-						fmt.Printf("Error killing process group: %v\n", err)
-					}
-				} else {
-					// Windows doesn't have process groups in the same way
-					if err := cmd.Process.Kill(); err != nil {
-						fmt.Printf("Error killing process: %v\n", err)
-					}
+		// Process received a signal
+		interrupted = true
+
+		// Kill the process group
+		pgid, err := syscall.Getpgid(cmd.Process.Pid)
+		if err == nil {
+			// On Unix systems, negative PID means kill process group
+			if runtime.GOOS != "windows" {
+				// Just terminate directly with SIGKILL to avoid additional output
+				if err := syscall.Kill(-pgid, syscall.SIGKILL); err != nil {
+					// Log the error but continue execution as we're in cleanup
+					fmt.Printf("Error killing process group: %v\n", err)
 				}
 			} else {
-				// Fallback to just killing the process
+				// Windows doesn't have process groups in the same way
 				if err := cmd.Process.Kill(); err != nil {
 					fmt.Printf("Error killing process: %v\n", err)
 				}
+			}
+		} else {
+			// Fallback to just killing the process
+			if err := cmd.Process.Kill(); err != nil {
+				fmt.Printf("Error killing process: %v\n", err)
 			}
 		}
 	}()

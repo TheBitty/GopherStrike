@@ -46,7 +46,10 @@ type NVDConnector struct {
 func NewNVDConnector(apiKey string) *NVDConnector {
 	cacheDir := filepath.Join("logs", defaultCacheDir, "nvd")
 	// Create cache directory
-	_ = os.MkdirAll(cacheDir, 0755)
+	if err := os.MkdirAll(cacheDir, 0755); err != nil {
+		// Log the error but continue - we'll fail gracefully if needed later
+		fmt.Printf("Warning: Failed to create NVD cache directory: %v\n", err)
+	}
 
 	return &NVDConnector{
 		APIKey:      apiKey,

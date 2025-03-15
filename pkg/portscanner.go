@@ -67,14 +67,21 @@ func RunNmapScannerWithPrivCheck() error {
 				// On Unix systems, negative PID means kill process group
 				if runtime.GOOS != "windows" {
 					// Just terminate directly with SIGKILL to avoid additional output
-					syscall.Kill(-pgid, syscall.SIGKILL)
+					if err := syscall.Kill(-pgid, syscall.SIGKILL); err != nil {
+						// Log the error but continue execution as we're in cleanup
+						fmt.Printf("Error killing process group: %v\n", err)
+					}
 				} else {
 					// Windows doesn't have process groups in the same way
-					cmd.Process.Kill()
+					if err := cmd.Process.Kill(); err != nil {
+						fmt.Printf("Error killing process: %v\n", err)
+					}
 				}
 			} else {
 				// Fallback to just killing the process
-				cmd.Process.Kill()
+				if err := cmd.Process.Kill(); err != nil {
+					fmt.Printf("Error killing process: %v\n", err)
+				}
 			}
 		}
 	}()

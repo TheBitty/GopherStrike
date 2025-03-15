@@ -284,7 +284,9 @@ func loadWordlist(path string) ([]string, error) {
 // saveResults saves the scan results to a JSON file
 func saveResults(result *ScanResult) error {
 	// Create logs directory
-	os.MkdirAll("logs", 0755)
+	if err := os.MkdirAll("logs", 0755); err != nil {
+		return fmt.Errorf("failed to create logs directory: %w", err)
+	}
 
 	// Create filename
 	filename := filepath.Join("logs", fmt.Sprintf("subdomains_%s_%s.json",

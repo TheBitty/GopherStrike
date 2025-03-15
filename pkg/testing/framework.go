@@ -4,6 +4,7 @@ package testing
 import (
 	"context"
 	"fmt"
+	"log"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -61,13 +62,19 @@ func NewTestServer() *TestServer {
 			// Set status code
 			w.WriteHeader(response.StatusCode)
 			// Write body
-			w.Write([]byte(response.Body))
+			_, err := w.Write([]byte(response.Body))
+			if err != nil {
+				log.Printf("Error writing response: %v", err)
+			}
 			return
 		}
 
 		// Default response
 		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte("Not found"))
+		_, respErr := w.Write([]byte("Not found"))
+		if respErr != nil {
+			log.Printf("Error writing response: %v", respErr)
+		}
 	}
 
 	// Create the test server

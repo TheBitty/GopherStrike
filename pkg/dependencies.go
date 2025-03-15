@@ -371,7 +371,11 @@ func PrintDependencyStatus() {
 
 		fmt.Println("\nWould you like to attempt automatic installation? (y/n)")
 		var response string
-		fmt.Scanln(&response)
+		_, err := fmt.Scanln(&response)
+		if err != nil {
+			fmt.Println("Error reading input:", err)
+			return
+		}
 
 		if strings.ToLower(response) == "y" {
 			fmt.Println("Attempting to install dependencies...")
@@ -397,7 +401,11 @@ func PrintDependencyStatus() {
 					(len(stillMissing) == 1 && stillMissing["scapy"] == "") {
 					fmt.Println("\nWould you like to continue anyway? Your scanner might work if")
 					fmt.Println("the dependencies are installed in a different Python environment. (y/n)")
-					fmt.Scanln(&response)
+					_, err := fmt.Scanln(&response)
+					if err != nil {
+						fmt.Println("Error reading input:", err)
+						return
+					}
 					if strings.ToLower(response) == "y" {
 						fmt.Println("Continuing...")
 						return

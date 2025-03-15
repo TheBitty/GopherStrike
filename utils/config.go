@@ -210,9 +210,16 @@ func LoadConfig() error {
 	homeDir, err := os.UserHomeDir()
 	if err == nil {
 		configDir := filepath.Join(homeDir, ".gopherstrike")
-		os.MkdirAll(configDir, 0755)
-		os.MkdirAll(filepath.Join(configDir, "logs"), 0755)
-		os.MkdirAll(filepath.Join(configDir, "wordlists"), 0755)
+		if err := os.MkdirAll(configDir, 0755); err != nil {
+			// Just log the error, but continue execution as this is initialization
+			fmt.Printf("Warning: Failed to create config directory: %v\n", err)
+		}
+		if err := os.MkdirAll(filepath.Join(configDir, "logs"), 0755); err != nil {
+			fmt.Printf("Warning: Failed to create logs directory: %v\n", err)
+		}
+		if err := os.MkdirAll(filepath.Join(configDir, "wordlists"), 0755); err != nil {
+			fmt.Printf("Warning: Failed to create wordlists directory: %v\n", err)
+		}
 
 		// If no config file specified, check for default config location
 		if *configFile == "" {

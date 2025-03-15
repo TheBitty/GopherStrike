@@ -182,7 +182,9 @@ func getBanner(host string, port int) (string, string) {
 	defer conn.Close()
 
 	// Set read deadline
-	conn.SetReadDeadline(time.Now().Add(5 * time.Second))
+	if err := conn.SetReadDeadline(time.Now().Add(5 * time.Second)); err != nil {
+		return "", ""
+	}
 
 	// Try to read banner
 	reader := bufio.NewReader(conn)

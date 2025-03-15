@@ -28,3 +28,23 @@ Scanning 10.10.10.133 for open ports...
 Scan completed! Found 0 open ports
 2025-03-15 15:50:11,136 - INFO - 
 No open ports found.
+2025-03-15 15:58:01,096 - INFO - Starting advanced port scanner
+2025-03-15 15:58:59,118 - INFO - Starting advanced port scanner
+2025-03-15 15:59:10,597 - INFO - Starting advanced port scanner
+2025-03-15 16:14:36,099 - INFO - Starting advanced port scanner
+2025-03-15 16:14:39,675 - INFO - Starting advanced port scanner
+2025-03-15 16:14:54,859 - INFO - Target selected interactively: 10.10.10.133
+2025-03-15 16:14:54,860 - INFO - Select port range to scan:
+2025-03-15 16:14:54,860 - INFO - 1. Common ports (1-1024)
+2025-03-15 16:14:54,860 - INFO - 2. Extended range (1-5000)
+2025-03-15 16:14:54,860 - INFO - 3. Full range (1-65535)
+2025-03-15 16:14:54,860 - INFO - 4. Custom range
+2025-03-15 16:14:55,750 - INFO - Port range selected interactively: 1-1024
+2025-03-15 16:14:55,750 - INFO - 
+Starting scan at: 2025-03-15 16:14:55
+2025-03-15 16:14:55,750 - INFO - 
+Scanning 10.10.10.133 for open ports...
+2025-03-15 16:14:56,563 - INFO - 
+Scan completed! Found 0 open ports
+2025-03-15 16:14:56,564 - INFO - 
+No open ports found.

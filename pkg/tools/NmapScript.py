@@ -13,6 +13,7 @@ import logging
 import logging.handlers
 import argparse
 from concurrent.futures import ThreadPoolExecutor
+import signal
 
 
 def parse_arguments():
@@ -74,13 +75,34 @@ def check_root():
         if os.geteuid() != 0:
             print("\nPlease run as root")
             print("\nAttempting to run as root...")
+            
             try:
                 # Get the full path to the current script
                 script_path = os.path.abspath(sys.argv[0])
                 # Use sys.executable to get the correct Python interpreter path
                 interpreter = sys.executable
+                
+                # Print a clear message about password prompt
+                print("\nYou may be prompted for your password to run with sudo privileges.")
+                print("If no password prompt appears, please run the script manually with sudo.")
+                
+                # Flush stdout to ensure the message is displayed before the sudo prompt
+                sys.stdout.flush()
+                
                 # Execute: sudo [current-python] [full-script-path] [all-arguments]
-                os.execvp('sudo', ['sudo', interpreter, script_path] + sys.argv[1:])
+                # Use os.system instead of execvp for better password prompt handling
+                cmd = f"sudo {interpreter} {script_path}"
+                for arg in sys.argv[1:]:
+                    cmd += f" {arg}"
+                
+                exit_code = os.system(cmd)
+                if exit_code != 0:
+                    print(f"\n[-] Failed to run with sudo: exit code {exit_code}")
+                    print("\nReturning to main menu...")
+                    return False
+                else:
+                    # If sudo command succeeded, we should exit this instance
+                    sys.exit(0)
             except PermissionError:
                 print("\n[-] Failed to obtain root privileges: Permission denied")
                 print("\nReturning to main menu...")
@@ -129,6 +151,8 @@ def get_target_ip():
         ip, is_valid = validate_ip(target)
 
         if is_valid:
+            # Ensure the output is properly flushed and visible
+            sys.stdout.flush()
             return ip
         else:
             logger.warning(f"[-] Invalid IP address: {target}")
@@ -147,13 +171,17 @@ def get_port_range():
     
     while attempt < max_attempts:
         try:
-            logger.info("\nSelect port range to scan:")
+            # Add clear visual separation
+            print("\n" + "-" * 50)
+            logger.info("Select port range to scan:")
             logger.info("1. Common ports (1-1024)")
             logger.info("2. Extended range (1-5000)")
             logger.info("3. Full range (1-65535)")
             logger.info("4. Custom range")
+            print("-" * 50)
 
             choice = input("\nEnter choice (1-4): ").strip()
+            sys.stdout.flush()  # Ensure output is flushed
 
             if choice == '1':
                 return 1, 1024
@@ -199,6 +227,9 @@ def scan_ports(target, start_port, end_port):
     ports_processed = 0
     total_ports = end_port - start_port + 1
 
+    # Ensure the progress bar is visible by adding a newline
+    print("")
+    
     try:
         # Divide the port range into chunks for better progress reporting
         chunk_size = 1000
@@ -224,6 +255,7 @@ def scan_ports(target, start_port, end_port):
                 if hasattr(os, 'geteuid') and os.geteuid() != 0:
                     # Not running as root, try to use sudo with nmap directly
                     print(f"\nRunning nmap with sudo for chunk {chunk_start}-{chunk_end}")
+                    sys.stdout.flush()  # Ensure the message is displayed
                     result = os.system(f"sudo nmap {scan_args} -oX /tmp/nmap_chunk_{chunk}.xml")
                     if result == 0:
                         # Parse the XML output
@@ -266,6 +298,7 @@ def scan_ports(target, start_port, end_port):
             bar = '=' * filled + '-' * (bar_length - filled)
             percent = int(progress * 100)
             print(f'\rProgress: [{bar}] {percent}% (processed {ports_processed} ports)', end='')
+            sys.stdout.flush()  # Ensure output is flushed
 
         # Complete the progress bar
         print(f'\rProgress: [{"=" * bar_length}] 100%')
@@ -281,6 +314,10 @@ def scan_ports(target, start_port, end_port):
     except PermissionError:
         logger.error(f"\nError: Permission denied - Make sure you're running with elevated privileges")
         print(f'\rProgress: [{"=" * bar_length}] 100% (scan terminated due to error)')
+    except KeyboardInterrupt:
+        logger.info("\nScan interrupted by user.")
+        print(f'\rProgress: [{"=" * bar_length}] 100% (scan interrupted)')
+        return sorted(open_ports)  # Return any ports found so far
     except Exception as e:
         logger.error(f"\nUnexpected error during scan: {e}")
         print(f'\rProgress: [{"=" * bar_length}] 100% (scan terminated due to error)')
@@ -611,6 +648,14 @@ if __name__ == "__main__":
         console = logging.StreamHandler()
         logger.addHandler(console)
 
+    # Set up signal handler for cleaner Ctrl+C handling
+    def signal_handler(sig, frame):
+        print("\n\nScan interrupted by user. Exiting...")
+        sys.exit(0)
+
+    # Register the signal handler for SIGINT (Ctrl+C)
+    signal.signal(signal.SIGINT, signal_handler)
+
     logger.info("Starting advanced port scanner")
 
     try:
@@ -629,12 +674,20 @@ if __name__ == "__main__":
             target = args.target
             logger.info(f"Target selected from command line: {target}")
         else:
+            # Clear visual separation before asking for target
+            print("\n" + "=" * 60)
+            print("TARGET SELECTION")
+            print("=" * 60)
             target = get_target_ip()
             logger.info(f"Target selected interactively: {target}")
             # Force a newline after getting the target IP to ensure the port range prompt is visible
             print("")
 
-        # Get port range
+        # Get port range with clear visual separation
+        print("\n" + "=" * 60)
+        print("PORT RANGE SELECTION")
+        print("=" * 60)
+        
         if args.port_choice:
             choice = args.port_choice
             if choice == '1':
@@ -663,47 +716,70 @@ if __name__ == "__main__":
                 start_port, end_port = 1, 1024
             logger.info(f"Port range selected interactively: {start_port}-{end_port}")
 
-        # Start scanning
+        # Start scanning with clear visual separation
+        print("\n" + "=" * 60)
+        print("STARTING SCAN")
+        print("=" * 60)
+        
         scan_start_time = datetime.now()
         logger.info(f"\nStarting scan at: {scan_start_time.strftime('%Y-%m-%d %H:%M:%S')}")
 
         open_ports = scan_ports(target, start_port, end_port)
 
+        # Results section with clear visual separation
+        print("\n" + "=" * 60)
+        print("SCAN RESULTS")
+        print("=" * 60)
+        
         if open_ports:
             print_summary(target, open_ports, scan_start_time)
 
             # Create a specific output file for the Go program to read
-            summary_file = os.path.join("logs", f"lastscan_{target}.txt")
-            with open(summary_file, "w") as f:
-                f.write(f"SCAN SUMMARY FOR {target}\n")
-                f.write("="*60 + "\n")
-                f.write(f"Scan started at: {scan_start_time.strftime('%Y-%m-%d %H:%M:%S')}\n")
-                f.write(f"Scan duration: {(datetime.now() - scan_start_time).total_seconds():.2f} seconds\n")
-                f.write(f"Open ports found: {len(open_ports)}\n\n")
+            try:
+                os.makedirs("logs", exist_ok=True)  # Ensure logs directory exists
+                summary_file = os.path.join("logs", f"lastscan_{target}.txt")
+                with open(summary_file, "w") as f:
+                    f.write(f"SCAN SUMMARY FOR {target}\n")
+                    f.write("="*60 + "\n")
+                    f.write(f"Scan started at: {scan_start_time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+                    f.write(f"Scan duration: {(datetime.now() - scan_start_time).total_seconds():.2f} seconds\n")
+                    f.write(f"Open ports found: {len(open_ports)}\n\n")
 
-                if open_ports:
-                    f.write("Open Ports:\n")
-                    for port in open_ports:
-                        service = get_service_name(port)
-                        f.write(f"  - {port}/tcp: {service}\n")
+                    if open_ports:
+                        f.write("Open Ports:\n")
+                        for port in open_ports:
+                            service = get_service_name(port)
+                            f.write(f"  - {port}/tcp: {service}\n")
 
-                f.write("="*60 + "\n")
+                    f.write("="*60 + "\n")
 
-            # For better visibility
-            print(f"\n[+] Saved scan summary to {summary_file}")
+                # For better visibility
+                print(f"\n[+] Saved scan summary to {summary_file}")
+            except Exception as e:
+                logger.error(f"Error saving summary file: {e}")
 
             # Continue with the standard logging
-            nmap_logger(open_ports, target, start_port, end_port, scan_start_time)
+            try:
+                nmap_logger(open_ports, target, start_port, end_port, scan_start_time)
+            except Exception as e:
+                logger.error(f"Error during detailed logging: {e}")
         else:
             logger.info("\nNo open ports found.")
 
             # Create empty summary file
-            summary_file = os.path.join("logs", f"lastscan_{target}.txt")
-            with open(summary_file, "w") as f:
-                f.write(f"SCAN SUMMARY FOR {target}\n")
-                f.write("="*60 + "\n")
-                f.write(f"No open ports found.\n")
-                f.write("="*60 + "\n")
+            try:
+                os.makedirs("logs", exist_ok=True)  # Ensure logs directory exists
+                summary_file = os.path.join("logs", f"lastscan_{target}.txt")
+                with open(summary_file, "w") as f:
+                    f.write(f"SCAN SUMMARY FOR {target}\n")
+                    f.write("="*60 + "\n")
+                    f.write(f"No open ports found.\n")
+                    f.write("="*60 + "\n")
+            except Exception as e:
+                logger.error(f"Error saving summary file: {e}")
+                
+        print("\nScan completed successfully.")
+        
     except KeyboardInterrupt:
         logger.info("\n\nScan interrupted by user. Exiting...")
     except Exception as e:
@@ -711,3 +787,7 @@ if __name__ == "__main__":
         # Only try to log debug info if logger has handlers
         if logger.handlers:
             logger.debug("Exception details:", exc_info=True)
+    
+    # Always exit cleanly
+    print("\nReturning to main menu...")
+    sys.exit(0)

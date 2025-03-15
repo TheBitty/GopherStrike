@@ -79,6 +79,10 @@ func RunNmapScannerWithPrivCheck() error {
 				cmd.Stderr = os.Stderr
 
 				if err := cmd.Run(); err != nil {
+					// Check if this is the special exit code (2) that indicates the script exited gracefully
+					if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 2 {
+						return fmt.Errorf("port scanner requires admin privileges")
+					}
 					return fmt.Errorf("error running with admin privileges: %w", err)
 				}
 
@@ -112,6 +116,10 @@ func RunNmapScannerWithPrivCheck() error {
 
 			err = cmd.Run()
 			if err != nil {
+				// Check if this is the special exit code (2) that indicates the script exited gracefully
+				if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 2 {
+					return fmt.Errorf("port scanner requires admin privileges")
+				}
 				// Provide specific advice for common errors
 				if strings.Contains(err.Error(), "No module named") {
 					fmt.Println("\nMissing Python dependencies. Please install them with:")
@@ -143,6 +151,10 @@ func RunNmapScannerWithPrivCheck() error {
 				cmd.Stdin = os.Stdin
 
 				if err := cmd.Run(); err != nil {
+					// Check if this is the special exit code (2) that indicates the script exited gracefully
+					if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 2 {
+						return fmt.Errorf("port scanner requires admin privileges")
+					}
 					return fmt.Errorf("error running with pkexec: %w", err)
 				}
 				return nil
@@ -165,6 +177,10 @@ func RunNmapScannerWithPrivCheck() error {
 			cmd.Stderr = os.Stderr
 
 			if err := cmd.Run(); err != nil {
+				// Check if this is the special exit code (2) that indicates the script exited gracefully
+				if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 2 {
+					return fmt.Errorf("port scanner requires admin privileges")
+				}
 				return fmt.Errorf("error running with admin privileges: %w", err)
 			}
 			return nil
@@ -221,6 +237,10 @@ cd "%s"
 		cmd.Stdin = os.Stdin
 
 		if err := cmd.Run(); err != nil {
+			// Check if this is the special exit code (2) that indicates the script exited gracefully
+			if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 2 {
+				return fmt.Errorf("port scanner requires admin privileges")
+			}
 			return fmt.Errorf("error running port scanner: %w", err)
 		}
 	} else {
@@ -231,6 +251,10 @@ cd "%s"
 		cmd.Stdin = os.Stdin
 
 		if err := cmd.Run(); err != nil {
+			// Check if this is the special exit code (2) that indicates the script exited gracefully
+			if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 2 {
+				return fmt.Errorf("port scanner requires admin privileges")
+			}
 			return fmt.Errorf("error running port scanner: %w", err)
 		}
 	}

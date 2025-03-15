@@ -4,7 +4,7 @@ go 1.23
 
 require (
 	github.com/gdamore/tcell/v2 v2.8.1
-	github.com/mattn/go-runewidth v0.0.16
+	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0
 )
 

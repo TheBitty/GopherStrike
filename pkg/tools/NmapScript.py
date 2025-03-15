@@ -83,16 +83,16 @@ def check_root():
                 os.execvp('sudo', ['sudo', interpreter, script_path] + sys.argv[1:])
             except PermissionError:
                 print("\n[-] Failed to obtain root privileges: Permission denied")
-                print("\nExiting...please use the sudo command to run the script as root")
-                sys.exit(1)
+                print("\nReturning to main menu...")
+                return False
             except FileNotFoundError:
                 print("\n[-] Failed to obtain root privileges: sudo command not found")
-                print("\nExiting...please install sudo or run the script as root")
-                sys.exit(1)
+                print("\nReturning to main menu...")
+                return False
             except Exception as e:
                 print(f"\n[-] Failed to obtain root privileges: {e}")
-                print("\nExiting...please use the sudo command to run the script as root")
-                sys.exit(1)  # scans are needed for root
+                print("\nReturning to main menu...")
+                return False
     else:
         # On Windows or other platforms where geteuid isn't available
         print("\nWarning: Cannot check for root/admin privileges on this platform.")
@@ -104,7 +104,9 @@ def check_root():
             print("On Windows, right-click the command prompt and select 'Run as administrator'")
 
         # Continue anyway
-        return
+        return True
+    
+    return True
 
 
 def validate_ip(ip):
@@ -589,7 +591,10 @@ if __name__ == "__main__":
 
     try:
         # Check for root privileges
-        check_root()
+        if not check_root():
+            logger.error("Root privileges required but not obtained. Exiting gracefully.")
+            # Exit with a special code that the Go program can handle
+            sys.exit(2)  # Use a different exit code to distinguish from other errors
 
         # Parse command-line arguments
         args = parse_arguments()

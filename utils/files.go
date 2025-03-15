@@ -22,7 +22,4 @@ func ClearScreen() {
 	}
 }
 
-func exitMenu() {
-	ClearScreen()
-
-}
+// ExitMenu clears the screen and performs any cleanup needed before exiting

@@ -8,6 +8,8 @@ require (
 	github.com/russross/blackfriday/v2 v2.1.0
 )
 
+require gopkg.in/yaml.v3 v3.0.1
+
 require (
 	github.com/gdamore/encoding v1.0.1 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
@@ -15,5 +17,4 @@ require (
 	golang.org/x/sys v0.29.0 // indirect
 	golang.org/x/term v0.28.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

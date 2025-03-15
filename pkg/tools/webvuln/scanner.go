@@ -262,8 +262,10 @@ func (s *Scanner) testXSS(target ScanTarget) {
 
 	// Test form fields if form scanning is enabled
 	if s.ScanOptions.ScanForms {
-		// Form scanning would be implemented here
-		// This would involve finding forms, testing each input field, etc.
+		// Form scanning functionality is planned but not yet implemented
+		// TODO: Implement form scanning logic here
+		// This would involve finding forms, testing each input field for various vulnerabilities
+		// For now, this is a placeholder for future implementation
 	}
 
 	if len(result.TestResults) > 0 {
@@ -727,9 +729,11 @@ func (s *Scanner) testAuthWeaknesses(target ScanTarget) {
 
 	// Test for brute force protection
 	if s.ScanOptions.BruteForceTest {
-		// Implement brute force protection test here
+		// Brute force protection testing is planned but not yet implemented
+		// TODO: Implement brute force protection test here
 		// This would involve sending multiple login attempts with incorrect credentials
 		// and checking if the account gets locked or if there are rate limits
+		// For now, this is a placeholder for future implementation
 	}
 
 	if len(result.TestResults) > 0 {

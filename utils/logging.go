@@ -84,28 +84,17 @@ func InitLogger() error {
 	return nil
 }
 
-// SetLogLevel sets the logging level
+// SetLogLevel sets the minimum log level
 func SetLogLevel(level string) {
-	// Normalize level
-	level = strings.ToLower(level)
-
-	// Validate level
-	validLevels := []string{LevelDebug, LevelInfo, LevelWarn, LevelError}
-	isValid := false
-	for _, l := range validLevels {
-		if level == l {
-			isValid = true
-			break
-		}
-	}
-
-	if !isValid {
-		fmt.Fprintf(os.Stderr, "Invalid log level: %s, using 'info'\n", level)
-		level = LevelInfo
+	if level == "" {
+		level = "info"
 	}
 
 	if globalLogger == nil {
-		InitLogger()
+		if err := InitLogger(); err != nil {
+			fmt.Printf("Warning: Failed to initialize logger: %v\n", err)
+			// Continue with default behavior even if there's an error
+		}
 	}
 
 	globalLogger.level = level
@@ -114,7 +103,10 @@ func SetLogLevel(level string) {
 // SetColorMode enables or disables ANSI color output
 func SetColorMode(enable bool) {
 	if globalLogger == nil {
-		InitLogger()
+		if err := InitLogger(); err != nil {
+			fmt.Printf("Warning: Failed to initialize logger: %v\n", err)
+			// Continue with default behavior even if there's an error
+		}
 	}
 	globalLogger.useColors = enable
 }

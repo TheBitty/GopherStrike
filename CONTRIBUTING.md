@@ -1,134 +1,145 @@
 # Contributing to GopherStrike
 
-First off, thank you for considering contributing to GopherStrike! It's people like you that make GopherStrike such a great tool.
+Thank you for considering contributing to GopherStrike! This document provides guidelines and instructions for contributing to this project.
+
+## Table of Contents
+
+- [Code of Conduct](#code-of-conduct)
+- [Getting Started](#getting-started)
+  - [Project Structure](#project-structure)
+  - [Development Environment](#development-environment)
+- [How to Contribute](#how-to-contribute)
+  - [Reporting Bugs](#reporting-bugs)
+  - [Suggesting Enhancements](#suggesting-enhancements)
+  - [Pull Requests](#pull-requests)
+- [Style Guidelines](#style-guidelines)
+  - [Code Style](#code-style)
+  - [Commit Messages](#commit-messages)
+- [Testing](#testing)
+- [Documentation](#documentation)
+- [Community](#community)
 
 ## Code of Conduct
 
-By participating in this project, you are expected to uphold our Code of Conduct. Please report unacceptable behavior to the project maintainers.
+This project and everyone participating in it is governed by our [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
 
-## How Can I Contribute?
+## Getting Started
+
+### Project Structure
+
+The GopherStrike project is organized as follows:
+
+```
+GopherStrike/
+├── .github/           # GitHub specific files (workflows, issue templates)
+├── assets/            # Project assets (images, logos, etc.)
+├── cmd/               # Command-line interface code
+├── pkg/               # Core packages
+│   ├── tools/         # Individual security tools
+│   ├── logging/       # Logging functionality
+│   └── ...            # Other packages
+├── utils/             # Utility functions
+├── docs/              # Documentation
+├── tests/             # Tests
+├── go.mod             # Go module file
+├── go.sum             # Go module checksum
+├── main.go            # Application entry point
+├── LICENSE            # License file
+└── README.md          # Project overview
+```
+
+### Development Environment
+
+To set up your development environment:
+
+1. Install Go 1.16 or higher
+2. Install Git
+3. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/GopherStrike.git
+   cd GopherStrike
+   ```
+4. Install dependencies:
+   ```bash
+   go mod download
+   ```
+
+## How to Contribute
 
 ### Reporting Bugs
 
-This section guides you through submitting a bug report for GopherStrike. Following these guidelines helps maintainers and the community understand your report, reproduce the behavior, and find related reports.
+Before creating bug reports, please check the [issue tracker](https://github.com/yourusername/GopherStrike/issues) to see if the problem has already been reported. If it has and the issue is still open, add a comment to the existing issue instead of opening a new one.
 
-**Before Submitting A Bug Report:**
+When creating a bug report, include as many details as possible:
 
-* Check the [issues](https://github.com/yourusername/GopherStrike/issues) to see if the problem has already been reported. If it has and the issue is still open, add a comment to the existing issue instead of opening a new one.
-* Determine which repository the problem should be reported in.
-
-**How Do I Submit A (Good) Bug Report?**
-
-Bugs are tracked as [GitHub issues](https://github.com/yourusername/GopherStrike/issues). Create an issue and provide the following information:
-
-* Use a clear and descriptive title for the issue to identify the problem.
-* Describe the exact steps which reproduce the problem in as many details as possible.
-* Provide specific examples to demonstrate the steps.
-* Describe the behavior you observed after following the steps and point out what exactly is the problem with that behavior.
-* Explain which behavior you expected to see instead and why.
-* Include screenshots and animated GIFs which show you following the described steps and clearly demonstrate the problem.
-* If the problem wasn't triggered by a specific action, describe what you were doing before the problem happened.
+- **Use a clear and descriptive title**
+- **Describe the exact steps which reproduce the problem**
+- **Provide specific examples to demonstrate the steps**
+- **Describe the behavior you observed after following the steps**
+- **Explain which behavior you expected to see instead**
+- **Include screenshots if possible**
+- **Include details about your configuration and environment**
 
 ### Suggesting Enhancements
 
-This section guides you through submitting an enhancement suggestion for GopherStrike, including completely new features and minor improvements to existing functionality.
+Enhancement suggestions are tracked as [GitHub issues](https://github.com/yourusername/GopherStrike/issues). When creating an enhancement suggestion:
 
-**Before Submitting An Enhancement Suggestion:**
-
-* Check if the enhancement has already been suggested.
-* Determine which repository the enhancement should be suggested in.
-
-**How Do I Submit A (Good) Enhancement Suggestion?**
-
-Enhancement suggestions are tracked as [GitHub issues](https://github.com/yourusername/GopherStrike/issues). Create an issue and provide the following information:
-
-* Use a clear and descriptive title for the issue to identify the suggestion.
-* Provide a step-by-step description of the suggested enhancement in as many details as possible.
-* Provide specific examples to demonstrate the steps or point out the part of GopherStrike which the suggestion is related to.
-* Describe the current behavior and explain which behavior you expected to see instead and why.
-* Explain why this enhancement would be useful to most GopherStrike users.
-* List some other tools or applications where this enhancement exists.
+- **Use a clear and descriptive title**
+- **Provide a detailed description of the proposed enhancement**
+- **Explain why this enhancement would be useful**
+- **List any alternatives you've considered**
+- **Include any relevant examples or mockups**
 
 ### Pull Requests
 
-* Fill in the required template
-* Do not include issue numbers in the PR title
-* Include screenshots and animated GIFs in your pull request whenever possible
-* Follow the Go styleguides
-* Include tests when adding new features
-* Update documentation when changing the API
+1. **Fork the repository**
+2. **Create a new branch** for your feature or bugfix: `git checkout -b feature/your-feature-name`
+3. **Make your changes**
+4. **Run tests** to ensure your changes don't break existing functionality
+5. **Commit your changes** with clear commit messages
+6. **Push to your fork**: `git push origin feature/your-feature-name`
+7. **Open a pull request** against the `main` branch
 
-## Styleguides
+## Style Guidelines
 
-### Git Commit Messages
+### Code Style
 
-* Use the present tense ("Add feature" not "Added feature")
-* Use the imperative mood ("Move cursor to..." not "Moves cursor to...")
-* Limit the first line to 72 characters or less
-* Reference issues and pull requests liberally after the first line
-* Consider starting the commit message with an applicable emoji:
-    * 🎨 `:art:` when improving the format/structure of the code
-    * 🐎 `:racehorse:` when improving performance
-    * 🚱 `:non-potable_water:` when plugging memory leaks
-    * 📝 `:memo:` when writing docs
-    * 🐛 `:bug:` when fixing a bug
-    * 🔥 `:fire:` when removing code or files
-    * 💚 `:green_heart:` when fixing the CI build
-    * ✅ `:white_check_mark:` when adding tests
-    * 🔒 `:lock:` when dealing with security
-    * ⬆️ `:arrow_up:` when upgrading dependencies
-    * ⬇️ `:arrow_down:` when downgrading dependencies
+- Follow the standard Go code style and conventions
+- Use `gofmt` to format your code
+- Follow the [Effective Go](https://golang.org/doc/effective_go) principles
+- Use meaningful variable and function names
+- Write comments for complex or non-obvious code sections
 
-### Go Styleguide
+### Commit Messages
 
-* Follow the [Go Code Review Comments](https://github.com/golang/go/wiki/CodeReviewComments)
-* Format your code with `gofmt`
-* Document all public functions and types
-* Use meaningful variable names
-* Keep functions small and focused
-* Write tests for your code
+- Use clear and descriptive commit messages
+- Start with a short summary (50 chars or less)
+- Optionally followed by a blank line and a more detailed explanation
+- Use the present tense ("Add feature" not "Added feature")
+- Use the imperative mood ("Move cursor to..." not "Moves cursor to...")
 
-## Development Setup
+## Testing
 
-Here's how to set up GopherStrike for local development:
+- Write tests for all new features and bug fixes
+- Ensure existing tests pass before submitting a PR
+- Aim for good code coverage
 
-1. Fork the GopherStrike repository on GitHub.
-2. Clone your fork locally:
-   ```bash
-   git clone https://github.com/your-username/GopherStrike.git
-   cd GopherStrike
-   ```
-3. Create a branch for local development:
-   ```bash
-   git checkout -b name-of-your-bugfix-or-feature
-   ```
-4. Make your changes locally.
-5. Run tests to make sure your changes don't break existing functionality:
-   ```bash
-   go test ./...
-   ```
-6. Commit your changes and push your branch to GitHub:
-   ```bash
-   git add .
-   git commit -m "Your detailed description of your changes"
-   git push origin name-of-your-bugfix-or-feature
-   ```
-7. Submit a pull request through the GitHub website.
+To run tests:
 
-## Pull Request Process
+```bash
+go test ./...
+```
 
-1. Ensure any install or build dependencies are removed before the end of the layer when doing a build.
-2. Update the README.md with details of changes to the interface, this includes new environment variables, exposed ports, useful file locations, and container parameters.
-3. Increase the version numbers in any examples files and the README.md to the new version that this Pull Request would represent.
-4. The pull request will be merged once you have the sign-off of at least one maintainer.
+## Documentation
+
+- Update the README.md with details of changes to the interface
+- Update the documentation when adding or changing features
+- Use godoc style comments for packages and exported functions
 
 ## Community
 
-Join our community to discuss GopherStrike development:
+- Join our [Discord server](https://discord.gg/yourinvitelink) for discussions
+- Follow the project on Twitter: [@GopherStrike](https://twitter.com/yourusername)
+- Subscribe to our mailing list for updates
 
-* [Discord](https://discord.gg/yourdiscordlink)
-* [Twitter](https://twitter.com/yourtwitterhandle)
-
-## Attribution
-
-This Contributing Guide is adapted from the [Atom Contributing Guide](https://github.com/atom/atom/blob/master/CONTRIBUTING.md). 
+Thank you for contributing to GopherStrike! 

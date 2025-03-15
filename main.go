@@ -6,6 +6,7 @@ import (
 	"GopherStrike/utils"
 	"fmt"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/gdamore/tcell/v2"
@@ -30,6 +31,7 @@ func mainMenu() {
 	for {
 		// Display the menu
 		displayBanner() // Display the main banner
+		utils.Info("Welcome to GopherStrike - A comprehensive security toolkit")
 		fmt.Println("\nAvailable Tools:")
 		fmt.Println("===================================================================================================")
 		fmt.Println("1. Port Scanner")
@@ -50,6 +52,7 @@ func mainMenu() {
 		_, err := fmt.Scanf("%d", &choice)
 
 		if err != nil {
+			utils.Error("Invalid choice: %v", err)
 			fmt.Println("Invalid choice. Please try again.")
 			utils.ClearScreen()
 			continue
@@ -126,6 +129,9 @@ func executeTool(toolName string, toolFunc func() error) {
 	utils.ClearScreen()
 	displayToolBanner(toolName)
 
+	// Log the tool execution
+	utils.Debug("Executing tool: %s", toolName)
+
 	// Show a minimal instruction
 	fmt.Println("\nPress Ctrl+C at any time to return to main menu")
 
@@ -147,9 +153,15 @@ func executeTool(toolName string, toolFunc func() error) {
 	select {
 	case err = <-resultCh:
 		// Tool completed normally
+		if err != nil {
+			utils.Error("Tool %s failed: %v", toolName, err)
+		} else {
+			utils.Debug("Tool %s completed successfully", toolName)
+		}
 	case <-interruptCh:
 		// Tool was interrupted by Ctrl+C
 		interrupted = true
+		utils.Warn("Tool %s interrupted by user", toolName)
 		// Wait for the tool to actually finish (after being killed)
 		<-toolDone
 	}
@@ -179,26 +191,58 @@ func executeTool(toolName string, toolFunc func() error) {
 func main() {
 	utils.ClearScreen() // clears the screen for the UI
 
-	// Check for logs directory at startup
-	if err := os.MkdirAll("logs", 0755); err != nil {
-		fmt.Printf("Warning: Failed to create logs directory: %v\n", err)
+	// Initialize configuration
+	if err := utils.LoadConfig(); err != nil {
+		fmt.Printf("Warning: Failed to load configuration: %v\n", err)
+		fmt.Println("Using default configuration settings.")
 	}
 
-	// Create OSINT logs directory
-	if err := os.MkdirAll("logs/osint", 0755); err != nil {
-		fmt.Printf("Warning: Failed to create OSINT logs directory: %v\n", err)
+	// Initialize logger
+	if err := utils.InitLogger(); err != nil {
+		fmt.Printf("Warning: Failed to initialize logger: %v\n", err)
 	}
 
-	// Create resolver logs directory
-	if err := os.MkdirAll("logs/resolver", 0755); err != nil {
-		fmt.Printf("Warning: Failed to create resolver logs directory: %v\n", err)
-	}
+	// Log startup information
+	utils.Info("GopherStrike starting up...")
+	utils.Debug("Configuration loaded successfully")
 
-	// Create webvuln logs directory
-	if err := os.MkdirAll("logs/webvuln", 0755); err != nil {
-		fmt.Printf("Warning: Failed to create webvuln logs directory: %v\n", err)
-	}
+	// Create required directories based on configuration
+	setupDirectories()
 
 	// Use the text-based menu directly
 	mainMenu()
+
+	// Clean up resources
+	utils.Info("GopherStrike shutting down...")
+	utils.CloseLogger()
+}
+
+// setupDirectories creates necessary directories for logs and other data
+func setupDirectories() {
+	// Ensure logs directory exists
+	logsDir := "logs"
+	if err := os.MkdirAll(logsDir, 0755); err != nil {
+		utils.Error("Failed to create logs directory: %v", err)
+	}
+
+	// Create tool-specific log directories
+	toolDirs := []string{
+		"osint", "resolver", "webvuln", "portscan",
+		"subdomain", "s3", "email", "dirb", "reports",
+	}
+
+	for _, dir := range toolDirs {
+		toolDir := filepath.Join(logsDir, dir)
+		if err := os.MkdirAll(toolDir, 0755); err != nil {
+			utils.Error("Failed to create %s logs directory: %v", dir, err)
+		}
+	}
+
+	// Create reports directory if specified in config
+	reportsDir := utils.Config.Tools.ReportingTools.OutputDir
+	if reportsDir != "" {
+		if err := os.MkdirAll(reportsDir, 0755); err != nil {
+			utils.Error("Failed to create reports directory: %v", err)
+		}
+	}
 }

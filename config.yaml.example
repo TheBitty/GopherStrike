@@ -1,0 +1,114 @@
+# GopherStrike Configuration File
+# Copy this to ~/.gopherstrike/config.yaml or specify with --config
+
+# Logging configuration
+logging:
+  # Log level: debug, info, warn, error
+  level: "info"
+  
+  # Log file path (supports ~ for home directory)
+  file: "~/.gopherstrike/logs/gopherstrike.log"
+  
+  # Color mode: auto, always, never
+  color_mode: "auto"
+
+# Tool-specific configurations
+tools:
+  # Port Scanner configuration
+  port_scanner:
+    # Default timeout for port scans
+    default_timeout: "2s"
+    # Number of concurrent threads
+    threads: 100
+    # Default port range
+    default_range: "1-1024"
+  
+  # Subdomain Scanner configuration
+  subdomain_scanner:
+    # Path to wordlist for subdomain enumeration
+    wordlist: "~/.gopherstrike/wordlists/subdomains.txt"
+    # Number of concurrent threads
+    threads: 50
+    # Timeout for DNS resolution
+    timeout: "5s"
+  
+  # Web Vulnerability Scanner configuration
+  web_vuln_scanner:
+    # Number of concurrent threads
+    threads: 10
+    # Request timeout
+    timeout: "10s"
+    # Enable XSS detection
+    check_xss: true
+    # Enable SQLi detection
+    check_sqli: true
+    # Check cookies for security issues
+    check_cookies: true
+    # Check headers for security issues
+    check_headers: true
+    # Default scan depth
+    default_depth: 2
+    # Delay between requests
+    request_delay: "100ms"
+    # User agent to use for requests
+    user_agent: "GopherStrike Web Scanner"
+    # Follow redirects
+    follow_redirect: true
+  
+  # Directory Bruteforcer configuration
+  dir_bruteforcer:
+    # Wordlist for directory bruteforcing
+    wordlist: "dirbuster-medium.txt"
+    # Number of concurrent threads
+    threads: 50
+    # File extensions to check
+    extensions: "php,html,js"
+  
+  # Email Harvester configuration
+  email_harvester:
+    # Request timeout
+    timeout: "30s"
+    # Maximum results to return
+    max_results: 100
+    # Search depth
+    search_depth: 2
+  
+  # S3 Bucket Scanner configuration
+  s3_scanner:
+    # Request timeout
+    timeout: "10s"
+    # Maximum buckets to check
+    max_buckets: 100
+    # Permutation depth for name generation
+    permutation_depth: 2
+    # Check for bucket permissions
+    check_permissions: true
+    # Wordlist for bruteforcing
+    bruteforce_wordlist: "s3-buckets.txt"
+  
+  # Reporting Tools configuration
+  reporting_tools:
+    # Output directory for reports
+    output_dir: "reports"
+    # Default report format
+    default_format: "html"
+  
+  # Host Resolver configuration
+  host_resolver:
+    # Number of concurrent threads
+    threads: 50
+    # Timeout for DNS resolution
+    timeout: "5s"
+    # DNS servers to use (comma-separated)
+    dns_servers: "8.8.8.8,1.1.1.1"
+    # Enable resolver cache
+    resolver_cache: true
+  
+  # Dependency Checker configuration
+  dependency_checker:
+    # Automatically install missing dependencies
+    auto_install: false
+    # Skip non-critical dependencies
+    skip_non_critical: false
+    # Enable verbose dependency logging
+    verbose_dependency_log: false 

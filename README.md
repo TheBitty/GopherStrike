@@ -1,4 +1,4 @@
-# GopherStrike
+#                                                                     GopherStrike
 
 <p align="center">
   <img src="assets/gopherstrike-logo.png" alt="GopherStrike Logo" width="200"/>

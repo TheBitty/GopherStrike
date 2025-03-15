@@ -26,166 +26,116 @@ func displayToolBanner(tool string) {
 
 // mainMenu displays and handles the main application menu
 func mainMenu() {
-	displayBanner() // Display the main banner
-	fmt.Println("\nAvailable Tools:")
-	fmt.Println("===================================================================================================")
-	fmt.Println("1. Port Scanner")
-	fmt.Println("2. Subdomain Scanner")
-	fmt.Println("3. OSINT & Vulnerability Tool")
-	fmt.Println("4. Web Application Security Scanner")
-	fmt.Println("5. S3 Bucket Scanner")
-	fmt.Println("6. Email Harvester")
-	fmt.Println("7. Directory Bruteforcer")
-	fmt.Println("8. Report Generator")
-	fmt.Println("9. Host & Subdomain Resolver")
-	fmt.Println("10. Check Dependencies")
-	fmt.Println("11. Exit")
+	for {
+		// Display the menu
+		displayBanner() // Display the main banner
+		fmt.Println("\nAvailable Tools:")
+		fmt.Println("===================================================================================================")
+		fmt.Println("1. Port Scanner")
+		fmt.Println("2. Subdomain Scanner")
+		fmt.Println("3. OSINT & Vulnerability Tool")
+		fmt.Println("4. Web Application Security Scanner")
+		fmt.Println("5. S3 Bucket Scanner")
+		fmt.Println("6. Email Harvester")
+		fmt.Println("7. Directory Bruteforcer")
+		fmt.Println("8. Report Generator")
+		fmt.Println("9. Host & Subdomain Resolver")
+		fmt.Println("10. Check Dependencies")
+		fmt.Println("11. Exit")
 
-	// Get user input
-	fmt.Printf("\n%s: ", "Enter your choice")
-	var choice int
-	_, err := fmt.Scanf("%d", &choice)
+		// Get user input
+		fmt.Printf("\n%s: ", "Enter your choice")
+		var choice int
+		_, err := fmt.Scanf("%d", &choice)
 
-	if err != nil {
-		fmt.Println("Invalid choice. Please try again.")
+		if err != nil {
+			fmt.Println("Invalid choice. Please try again.")
+			utils.ClearScreen()
+			continue
+		}
+
+		// Execute the selected tool
+		if !executeToolChoice(choice) {
+			// Exit the loop if user selected exit
+			break
+		}
+
+		// Clear the screen before showing the menu again
 		utils.ClearScreen()
-		mainMenu()
-		return
 	}
+}
 
+// executeToolChoice handles the execution of the selected tool
+// Returns false if the program should exit, true otherwise
+func executeToolChoice(choice int) bool {
 	switch choice {
 	case 1:
-		utils.ClearScreen()
-		displayToolBanner("portscanner")
-		// Use the properly exported function from the pkg package
-		err := pkg.RunNmapScannerWithPrivCheck()
-		if err != nil {
-			fmt.Println("Error:", err)
-			fmt.Println("\nPress ESC to return to main menu...")
-			utils.WaitForKeyPress(tcell.KeyEscape)
-			utils.ClearScreen()
-			mainMenu()
-			return
-		}
-		// Wait for ESC key to return to main menu
-		fmt.Println("\nPress ESC to return to main menu...")
-		utils.WaitForKeyPress(tcell.KeyEscape)
-		utils.ClearScreen()
-		mainMenu() // Return to main menu after tool completes
+		executeTool("portscanner", func() error {
+			return pkg.RunNmapScannerWithPrivCheck()
+		})
 	case 2:
-		utils.ClearScreen()
-		displayToolBanner("subdomainscanner")
-		// Run subdomain scanner
-		if err := pkg.RunSubdomainScannerWithCheck(); err != nil {
-			fmt.Println("Error:", err)
-		}
-		// Wait for ESC key to return to main menu
-		fmt.Println("\nPress ESC to return to main menu...")
-		utils.WaitForKeyPress(tcell.KeyEscape)
-		utils.ClearScreen()
-		mainMenu()
+		executeTool("subdomainscanner", func() error {
+			return pkg.RunSubdomainScannerWithCheck()
+		})
 	case 3:
-		utils.ClearScreen()
-		displayToolBanner("osint")
-		// Run OSINT tool
-		if err := pkg.RunOSINTTool(); err != nil {
-			fmt.Println("Error:", err)
-		}
-		// Wait for ESC key to return to main menu
-		fmt.Println("\nPress ESC to return to main menu...")
-		utils.WaitForKeyPress(tcell.KeyEscape)
-		utils.ClearScreen()
-		mainMenu()
+		executeTool("osint", func() error {
+			return pkg.RunOSINTTool()
+		})
 	case 4:
-		utils.ClearScreen()
-		displayToolBanner("webvuln")
-		// Call the web vulnerability scanner
-		if err := pkg.RunWebVulnScanner(); err != nil {
-			fmt.Println("Error:", err)
-		}
-		// Wait for ESC key to return to main menu
-		fmt.Println("\nPress ESC to return to main menu...")
-		utils.WaitForKeyPress(tcell.KeyEscape)
-		utils.ClearScreen()
-		mainMenu()
+		executeTool("webvuln", func() error {
+			return pkg.RunWebVulnScanner()
+		})
 	case 5:
-		utils.ClearScreen()
-		displayToolBanner("s3scanner")
-		// Call the S3 bucket scanner
-		if err := tools.RunS3Scanner(); err != nil {
-			fmt.Println("Error:", err)
-		}
-		// Wait for ESC key to return to main menu
-		fmt.Println("\nPress ESC to return to main menu...")
-		utils.WaitForKeyPress(tcell.KeyEscape)
-		utils.ClearScreen()
-		mainMenu()
+		executeTool("s3scanner", func() error {
+			return tools.RunS3Scanner()
+		})
 	case 6:
-		utils.ClearScreen()
-		displayToolBanner("emailharvester")
-		// Call the email harvester
-		if err := tools.RunEmailHarvester(); err != nil {
-			fmt.Println("Error:", err)
-		}
-		// Wait for ESC key to return to main menu
-		fmt.Println("\nPress ESC to return to main menu...")
-		utils.WaitForKeyPress(tcell.KeyEscape)
-		utils.ClearScreen()
-		mainMenu()
+		executeTool("emailharvester", func() error {
+			return tools.RunEmailHarvester()
+		})
 	case 7:
-		utils.ClearScreen()
-		displayToolBanner("dirbruteforcer")
-		// Call the directory bruteforcer
-		if err := tools.RunDirBruteforcer(); err != nil {
-			fmt.Println("Error:", err)
-		}
-		// Wait for ESC key to return to main menu
-		fmt.Println("\nPress ESC to return to main menu...")
-		utils.WaitForKeyPress(tcell.KeyEscape)
-		utils.ClearScreen()
-		mainMenu()
+		executeTool("dirbruteforcer", func() error {
+			return tools.RunDirBruteforcer()
+		})
 	case 8:
-		utils.ClearScreen()
-		displayToolBanner("reportgenerator")
-		// Call the report generator
-		if err := tools.RunReportingTools(); err != nil {
-			fmt.Println("Error:", err)
-		}
-		// Wait for ESC key to return to main menu
-		fmt.Println("\nPress ESC to return to main menu...")
-		utils.WaitForKeyPress(tcell.KeyEscape)
-		utils.ClearScreen()
-		mainMenu()
+		executeTool("reportgenerator", func() error {
+			return tools.RunReportingTools()
+		})
 	case 9:
-		utils.ClearScreen()
-		displayToolBanner("hostresolver")
-		// Run host & subdomain resolver
-		if err := pkg.RunHostResolver(); err != nil {
-			fmt.Println("Error:", err)
-		}
-		// Wait for ESC key to return to main menu
-		fmt.Println("\nPress ESC to return to main menu...")
-		utils.WaitForKeyPress(tcell.KeyEscape)
-		utils.ClearScreen()
-		mainMenu()
+		executeTool("hostresolver", func() error {
+			return pkg.RunHostResolver()
+		})
 	case 10:
-		utils.ClearScreen()
-		displayToolBanner("dependencycheck")
-		// Run dependency check
-		pkg.PrintDependencyStatus()
-		// Wait for ESC key to return to main menu
-		fmt.Println("\nPress ESC to return to main menu...")
-		utils.WaitForKeyPress(tcell.KeyEscape)
-		utils.ClearScreen()
-		mainMenu()
+		executeTool("dependencycheck", func() error {
+			pkg.PrintDependencyStatus()
+			return nil
+		})
 	case 11:
 		fmt.Println("Exiting GopherStrike. Goodbye!")
-		os.Exit(0)
+		return false
 	default:
 		fmt.Println("Invalid choice. Please try again.")
-		utils.ClearScreen()
-		mainMenu()
 	}
+
+	return true
+}
+
+// executeTool runs a tool with proper error handling and ESC key waiting
+func executeTool(toolName string, toolFunc func() error) {
+	utils.ClearScreen()
+	displayToolBanner(toolName)
+
+	// Run the tool and collect any error
+	err := toolFunc()
+
+	// Display error message if there was an error
+	if err != nil {
+		fmt.Println("\nError:", err)
+	}
+
+	// Only after the tool has finished running, wait for ESC key
+	fmt.Println("\nPress ESC to return to main menu...")
+	utils.WaitForKeyPress(tcell.KeyEscape)
 }
 
 // main is the entry point for the application

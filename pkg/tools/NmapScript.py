@@ -1,5 +1,5 @@
-import nmap
-from scapy.all import *
+import nmap # type: ignore
+from scapy.all import * # type: ignore
 from datetime import datetime
 import json
 import socket
@@ -594,6 +594,7 @@ if __name__ == "__main__":
         if not check_root():
             logger.error("Root privileges required but not obtained. Exiting gracefully.")
             # Exit with a special code that the Go program can handle
+            print("\nReturning to main menu...")
             sys.exit(2)  # Use a different exit code to distinguish from other errors
 
         # Parse command-line arguments

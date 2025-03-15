@@ -60,6 +60,12 @@ func DependencyCheck() map[string]string {
 		// Method 1: Direct import attempt
 		requiredModules := []string{"nmap", "scapy"}
 		for _, module := range requiredModules {
+			// Store the pip module name - which may differ from import name
+			pipModuleName := module
+			if module == "nmap" {
+				pipModuleName = "python-nmap"
+			}
+
 			// Create a temporary check script
 			scriptPath := createModuleCheckScript(module)
 			if scriptPath != "" {
@@ -75,7 +81,7 @@ func DependencyCheck() map[string]string {
 				// Clean up temp file
 				err = os.Remove(scriptPath)
 				if err != nil {
-					return nil
+					fmt.Printf("Warning: Failed to clean up temp file: %v\n", err)
 				}
 			}
 
@@ -101,8 +107,8 @@ func DependencyCheck() map[string]string {
 				}
 			}
 
-			// If we get here, module is missing
-			missing[module] = fmt.Sprintf("Install with: pip3 install %s", module)
+			// If we get here, module is missing - suggest proper pip module name
+			missing[module] = fmt.Sprintf("Install with: pip3 install %s", pipModuleName)
 		}
 	}
 
@@ -227,6 +233,13 @@ func checkModuleInPip(pipCmd string, moduleName string) bool {
 	pipModuleName := moduleName
 	if moduleName == "nmap" {
 		pipModuleName = "python-nmap"
+	}
+
+	// More detailed checking for python-nmap
+	if moduleName == "nmap" {
+		// Some pip installations use lowercase, some use Python-nmap
+		return strings.Contains(strings.ToLower(string(output)), "python-nmap") ||
+			strings.Contains(string(output), "python_nmap")
 	}
 
 	return strings.Contains(string(output), pipModuleName)

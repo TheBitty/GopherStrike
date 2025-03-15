@@ -125,17 +125,39 @@ func executeTool(toolName string, toolFunc func() error) {
 	utils.ClearScreen()
 	displayToolBanner(toolName)
 
-	// Run the tool and collect any error
-	err := toolFunc()
+	// Start the interrupt listener
+	interruptCh := utils.StartInterruptListener()
 
-	// Display error message if there was an error
-	if err != nil {
+	// Run the tool in a separate goroutine
+	resultCh := make(chan error, 1)
+	go func() {
+		resultCh <- toolFunc()
+	}()
+
+	// Wait for either the tool to complete or an interrupt
+	var err error
+	select {
+	case err = <-resultCh:
+		// Tool completed normally
+	case <-interruptCh:
+		// Tool was interrupted
+		fmt.Println("\nTool execution interrupted by user.")
+		err = fmt.Errorf("tool execution interrupted")
+	}
+
+	// Stop the interrupt listener
+	utils.StopInterruptListener()
+
+	// Display error message if there was an error (and it wasn't just an interruption)
+	if err != nil && err.Error() != "tool execution interrupted" {
 		fmt.Println("\nError:", err)
 	}
 
-	// Only after the tool has finished running, wait for ESC key
-	fmt.Println("\nPress ESC to return to main menu...")
-	utils.WaitForKeyPress(tcell.KeyEscape)
+	// Only wait for ESC key if we weren't already interrupted
+	if err == nil || err.Error() != "tool execution interrupted" {
+		fmt.Println("\nPress ESC to return to main menu...")
+		utils.WaitForKeyPress(tcell.KeyEscape)
+	}
 }
 
 // main is the entry point for the application

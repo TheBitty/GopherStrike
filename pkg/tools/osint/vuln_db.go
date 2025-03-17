@@ -1,4 +1,4 @@
-// pkg/tools/osint/vuln_db.go
+// Package osint pkg/tools/osint/vuln_db.go
 package osint
 
 import (
@@ -14,10 +14,8 @@ import (
 )
 
 const (
-	// Source identifiers
-	SourceNVD       = "NVD"
-	SourceExploitDB = "ExploitDB"
-	SourceGithub    = "GitHub"
+	// SourceNVD Source identifiers
+	SourceNVD = "NVD"
 
 	// Cache duration - 24 hours
 	cacheDuration = 24 * time.Hour
@@ -128,7 +126,12 @@ func (c *NVDConnector) Search(query SearchQuery) ([]Vulnerability, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error making request: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+
+		}
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("API error: %s", resp.Status)

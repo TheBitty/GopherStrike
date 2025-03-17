@@ -1,4 +1,4 @@
-// pkg/resolver/cli.go
+// Package resolver pkg/resolver/cli.go
 package resolver
 
 import (
@@ -37,7 +37,7 @@ func RunHostResolver() error {
 			resolveSubdomains(resolver)
 		case "4": // Configure resolver settings
 			configureResolverSettings(resolver)
-		case "5": // Return to main menu
+		case "5": // Return to the main menu
 			fmt.Println("Returning to main menu...")
 			return nil
 		default:
@@ -106,7 +106,7 @@ func resolveMultipleHosts(resolver *HostResolver) {
 			hostnames = append(hostnames, hostname)
 		}
 
-	case "2": // Load from file
+	case "2": // Load from a file
 		filePath := getInput("Enter path to hostnames file")
 		var err error
 		hostnames, err = loadHostnamesFromFile(filePath)
@@ -205,7 +205,7 @@ func resolveSubdomains(resolver *HostResolver) {
 			subdomains = append(subdomains, subdomain)
 		}
 
-	case "2": // Load from file
+	case "2": // Load from a file
 		filePath := getInput("Enter path to wordlist file")
 		var err error
 		subdomains, err = loadHostnamesFromFile(filePath)
@@ -441,7 +441,12 @@ func loadHostnamesFromFile(filePath string) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file: %v", err)
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+
+		}
+	}(file)
 
 	var hostnames []string
 	scanner := bufio.NewScanner(file)

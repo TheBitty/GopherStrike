@@ -1,4 +1,4 @@
-// pkg/tools/subdomain/utils.go
+// Package subdomain pkg/tools/subdomain/utils.go
 package subdomain
 
 import (
@@ -59,7 +59,7 @@ func ValidateDomainFormat(domain string) bool {
 		return false
 	}
 
-	// Check domain name format using precompiled regex
+	// Check a domain name format using precompiled regex
 	return domainRegex.MatchString(domain)
 }
 
@@ -111,28 +111,6 @@ func FormatSize(size int64) string {
 }
 
 // GenerateProgressBar creates a simple ASCII progress bar
-func GenerateProgressBar(progress, total int, width int) string {
-	if total <= 0 {
-		return "[----------] Unknown progress"
-	}
-
-	percent := float64(progress) / float64(total)
-	completeWidth := int(percent * float64(width))
-
-	bar := "["
-	for i := 0; i < width; i++ {
-		if i < completeWidth {
-			bar += "="
-		} else if i == completeWidth {
-			bar += ">"
-		} else {
-			bar += " "
-		}
-	}
-	bar += "]"
-
-	return fmt.Sprintf("%s %.1f%% (%d/%d)", bar, percent*100, progress, total)
-}
 
 // FileExists checks if a file exists and is not a directory
 func FileExists(filename string) bool {

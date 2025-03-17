@@ -1,4 +1,4 @@
-// pkg/tools/osint/serverinfo.go
+// Package osint pkg/tools/osint/serverinfo.go
 package osint
 
 import (
@@ -33,11 +33,11 @@ var (
 	iisRegex = regexp.MustCompile(`Microsoft-IIS/(\d+\.\d+)`)
 
 	// OpenSSH regex
-	opensshRegex = regexp.MustCompile(`OpenSSH(?:_|/| )(\d+\.\d+(?:p\d+)?)`)
+	opensshRegex = regexp.MustCompile(`OpenSSH[_/ ](\d+\.\d+(?:p\d+)?)`)
 
 	// Various OS regexes
 	ubuntuRegex  = regexp.MustCompile(`Ubuntu[/-](\d+\.\d+)`)
-	centosRegex  = regexp.MustCompile(`CentOS(?:/| )(\d+(?:\.\d+)?)`)
+	centosRegex  = regexp.MustCompile(`CentOS[/ ](\d+(?:\.\d+)?)`)
 	debianRegex  = regexp.MustCompile(`Debian (?:GNU/Linux )?(\d+(?:\.\d+)?)`)
 	windowsRegex = regexp.MustCompile(`(Windows) (?:NT )?(\d+\.\d+)`)
 )
@@ -166,7 +166,10 @@ func gatherHTTPInfo(serverInfo *ServerInfo, ports []int) {
 		}
 
 		// Close response body
-		resp.Body.Close()
+		err = resp.Body.Close()
+		if err != nil {
+			return
+		}
 	}
 }
 
@@ -179,7 +182,12 @@ func getBanner(host string, port int) (string, string) {
 	if err != nil {
 		return "", ""
 	}
-	defer conn.Close()
+	defer func(conn net.Conn) {
+		err := conn.Close()
+		if err != nil {
+
+		}
+	}(conn)
 
 	// Set read deadline
 	if err := conn.SetReadDeadline(time.Now().Add(5 * time.Second)); err != nil {

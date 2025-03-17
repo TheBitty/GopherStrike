@@ -17,19 +17,13 @@ const (
 	LevelError = "error"
 )
 
-// ANSI colors
 const (
 	ColorReset  = "\033[0m"
 	ColorRed    = "\033[31m"
 	ColorGreen  = "\033[32m"
 	ColorYellow = "\033[33m"
-	ColorBlue   = "\033[34m"
-	ColorPurple = "\033[35m"
-	ColorCyan   = "\033[36m"
-	ColorGray   = "\033[37m"
 
-	ColorBold      = "\033[1m"
-	ColorUnderline = "\033[4m"
+	ColorGray = "\033[37m"
 )
 
 // Logger represents a logger instance
@@ -114,7 +108,10 @@ func SetColorMode(enable bool) {
 // SetLogFile sets the output file for logging
 func SetLogFile(filePath string) error {
 	if globalLogger == nil {
-		InitLogger()
+		err := InitLogger()
+		if err != nil {
+			return err
+		}
 	}
 
 	// Expand ~ to home directory
@@ -139,7 +136,10 @@ func SetLogFile(filePath string) error {
 
 	// Close previous file if any
 	if globalLogger.file != nil {
-		globalLogger.file.Close()
+		err := globalLogger.file.Close()
+		if err != nil {
+			return err
+		}
 	}
 
 	globalLogger.file = file
@@ -169,7 +169,10 @@ func LogLevelToInt(level string) int {
 // shouldLog determines if a message at the given level should be logged
 func shouldLog(level string) bool {
 	if globalLogger == nil {
-		InitLogger()
+		err := InitLogger()
+		if err != nil {
+			return false
+		}
 	}
 	return LogLevelToInt(level) >= LogLevelToInt(globalLogger.level)
 }
@@ -213,7 +216,10 @@ func log(level, format string, args ...interface{}) {
 	}
 
 	if globalLogger == nil {
-		InitLogger()
+		err := InitLogger()
+		if err != nil {
+			return
+		}
 	}
 
 	// Get timestamp
@@ -231,7 +237,10 @@ func log(level, format string, args ...interface{}) {
 	logLine := fmt.Sprintf("[%s] [%s] %s\n", timestamp, getLevelPrefix(level), message)
 
 	// Write to the configured writer
-	fmt.Fprint(globalLogger.writer, logLine)
+	_, err := fmt.Fprint(globalLogger.writer, logLine)
+	if err != nil {
+		return
+	}
 }
 
 // Debug logs a debug message
@@ -254,10 +263,13 @@ func Error(format string, args ...interface{}) {
 	log(LevelError, format, args...)
 }
 
-// Close closes the logger resources
+// CloseLogger Close closes the logger resources
 func CloseLogger() {
 	if globalLogger != nil && globalLogger.file != nil {
-		globalLogger.file.Close()
+		err := globalLogger.file.Close()
+		if err != nil {
+			return
+		}
 		globalLogger.file = nil
 	}
 }

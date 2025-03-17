@@ -1,10 +1,11 @@
-// pkg/tools/discovery/dirbruteforce/dirbruteforce.go
+// Package dirbruteforce pkg/tools/discovery/dirbruteforce/dirbruteforce.go
 package dirbruteforce
 
 import (
 	"bufio"
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -115,7 +116,7 @@ func NewDirScanner(options BruteforceOptions) (*DirScanner, error) {
 
 // loadWordlist loads a wordlist from a file
 func loadWordlist(path string) ([]string, error) {
-	// Check if file exists
+	// Check if a file exists
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		// Try relative paths if not found
 		altPaths := []string{
@@ -136,7 +137,12 @@ func loadWordlist(path string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+
+		}
+	}(file)
 
 	var lines []string
 	scanner := bufio.NewScanner(file)
@@ -291,7 +297,7 @@ func (d *DirScanner) generatePaths() []string {
 
 		// Add the word with each extension
 		for _, ext := range d.options.Extensions {
-			// Handle special case where extension is empty
+			// Handle a special case where extension is empty
 			if ext == "" {
 				paths = append(paths, word)
 				continue
@@ -373,7 +379,12 @@ func (d *DirScanner) checkPath(baseURL, path string) PathResult {
 	if err != nil {
 		return result
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+
+		}
+	}(resp.Body)
 
 	// Parse the response
 	result.StatusCode = resp.StatusCode
@@ -408,7 +419,7 @@ func (d *DirScanner) isInterestingResult(result PathResult) bool {
 	return true
 }
 
-// addResult adds a result to the results slice
+// addResult adds a result to the result slice
 func (d *DirScanner) addResult(result PathResult) {
 	d.mutex.Lock()
 	defer d.mutex.Unlock()
@@ -423,12 +434,17 @@ func (d *DirScanner) saveResults() error {
 		return err
 	}
 
-	// Create output file
+	// Create an output file
 	file, err := os.Create(d.options.OutputFile)
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+
+		}
+	}(file)
 
 	// Write header
 	if _, err := file.WriteString("# Directory Bruteforce Results\n"); err != nil {
@@ -472,7 +488,7 @@ func RunDirBruteforce() error {
 	fmt.Print("[?] Enter target URL (e.g., https://example.com): ")
 	var targetURL string
 	if _, err := fmt.Scanln(&targetURL); err != nil {
-		// Just log the error and continue - user can still proceed
+		// Log the error and continue - user can still proceed
 		fmt.Printf("Error reading input: %v\n", err)
 	}
 
@@ -480,8 +496,8 @@ func RunDirBruteforce() error {
 		return fmt.Errorf("target URL is required")
 	}
 
-	// Ensure URL has proper scheme
-	if !strings.HasPrefix(targetURL, "http://") && !strings.HasPrefix(targetURL, "https://") {
+	// Ensure URL has a proper scheme
+	if !strings.HasPrefix(targetURL, "https://") && !strings.HasPrefix(targetURL, "https://") {
 		targetURL = "https://" + targetURL
 	}
 
@@ -492,7 +508,7 @@ func RunDirBruteforce() error {
 	fmt.Printf("[?] Enter wordlist path (default: %s): ", options.WordlistPath)
 	var wordlistPath string
 	if _, err := fmt.Scanln(&wordlistPath); err != nil {
-		// Just log the error and continue with default value
+		// Log the error and continue with default value
 		fmt.Printf("Error reading input: %v\n", err)
 	}
 	if wordlistPath != "" {
@@ -503,7 +519,7 @@ func RunDirBruteforce() error {
 	fmt.Printf("[?] Enter file extensions to check (comma-separated, default: %s): ", strings.Join(options.Extensions, ","))
 	var extensionsInput string
 	if _, err := fmt.Scanln(&extensionsInput); err != nil {
-		// Just log the error and continue with default value
+		// Log the error and continue with default value
 		fmt.Printf("Error reading input: %v\n", err)
 	}
 	if extensionsInput != "" {
@@ -518,7 +534,7 @@ func RunDirBruteforce() error {
 	fmt.Printf("[?] Enter number of threads (default: %d): ", options.Threads)
 	var threads string
 	if _, err := fmt.Scanln(&threads); err != nil {
-		// Just log the error and continue with default value
+		// Log the error and continue with default value
 		fmt.Printf("Error reading input: %v\n", err)
 	}
 	if threads != "" {
@@ -528,11 +544,11 @@ func RunDirBruteforce() error {
 		}
 	}
 
-	// Ask for output file
+	// Ask for an output file
 	fmt.Printf("[?] Save results to file? (default: %s, leave empty for no file): ", options.OutputFile)
 	var outputFile string
 	if _, err := fmt.Scanln(&outputFile); err != nil {
-		// Just log the error and continue with default value
+		// Log the error and continue with default value
 		fmt.Printf("Error reading input: %v\n", err)
 	}
 	options.OutputFile = outputFile

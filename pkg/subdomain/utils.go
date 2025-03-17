@@ -1,4 +1,4 @@
-// pkg/subdomain/utils.go
+// Package subdomain pkg/subdomain/utils.go
 package subdomain
 
 import (
@@ -39,7 +39,7 @@ var (
 
 // ScanOptions defines options for subdomain scanning
 type ScanOptions struct {
-	WordlistPath string // Path to wordlist file
+	WordlistPath string // Path to a wordlist file
 	Threads      int    // Number of concurrent goroutines
 	CheckHTTP    bool   // Whether to check HTTP status
 	CheckSSL     bool   // Whether to check SSL certificates

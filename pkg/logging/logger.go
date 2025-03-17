@@ -1,4 +1,4 @@
-// pkg/logging/logger.go
+// Package logging pkg/logging/logger.go
 package logging
 
 import (
@@ -17,7 +17,7 @@ import (
 type LogLevel int
 
 const (
-	// Log levels
+	// DEBUG Log levels
 	DEBUG LogLevel = iota
 	INFO
 	WARNING
@@ -77,7 +77,7 @@ func (f *DefaultFormatter) Format(level LogLevel, msg string, source string, tim
 		}
 	}
 
-	// Build log message with or without colors
+	// Build a log message with or without colors
 	timeStr := timestamp.Format("2006-01-02 15:04:05")
 	if f.colored {
 		return fmt.Sprintf("%s [%s%s%s] %s: %s", timeStr, levelColor, levelNames[level], resetColor, source, msg)
@@ -212,7 +212,10 @@ func (l *Logger) log(level LogLevel, format string, args ...interface{}) {
 
 	// Write to all writers for this level
 	for _, writer := range l.writers[level] {
-		fmt.Fprintln(writer, logEntry)
+		_, err := fmt.Fprintln(writer, logEntry)
+		if err != nil {
+			return
+		}
 	}
 }
 
@@ -241,7 +244,7 @@ func (l *Logger) Critical(format string, args ...interface{}) {
 	l.log(CRITICAL, format, args...)
 }
 
-// Create a global logger instance
+// Global Create a global logger instance
 var Global = New(INFO)
 
 // Initialize the global logger with file handlers for each module

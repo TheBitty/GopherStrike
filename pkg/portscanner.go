@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -98,7 +99,8 @@ func RunNmapScannerWithPrivCheck() error {
 	}
 
 	// Special handling for exit code 2 (admin privileges required)
-	if exitErr, ok := cmdErr.(*exec.ExitError); ok {
+	var exitErr *exec.ExitError
+	if errors.As(cmdErr, &exitErr) {
 		exitCode := exitErr.ExitCode()
 
 		if exitCode == 2 {
@@ -181,7 +183,12 @@ func checkNmapDependency() error {
 	if err != nil {
 		return fmt.Errorf("failed to create temporary file: %v", err)
 	}
-	defer os.Remove(tempFile.Name())
+	defer func(name string) {
+		err := os.Remove(name)
+		if err != nil {
+
+		}
+	}(tempFile.Name())
 
 	// Write a Python script that checks for the nmap module
 	script := `

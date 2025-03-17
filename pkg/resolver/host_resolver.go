@@ -1,4 +1,4 @@
-// pkg/resolver/host_resolver.go
+// Package resolver pkg/resolver/host_resolver.go
 package resolver
 
 import (
@@ -355,13 +355,13 @@ func (r *HostResolver) lookupIPv6WithRetry(ctx context.Context, resolver *net.Re
 }
 
 // IsIPv4 checks if a string is a valid IPv4 address
-func IsIPv4(ip string) bool {
+func _(ip string) bool {
 	parsedIP := net.ParseIP(ip)
 	return parsedIP != nil && parsedIP.To4() != nil
 }
 
 // IsIPv6 checks if a string is a valid IPv6 address
-func IsIPv6(ip string) bool {
+func _(ip string) bool {
 	parsedIP := net.ParseIP(ip)
 	return parsedIP != nil && parsedIP.To4() == nil
 }
@@ -379,12 +379,12 @@ func IsValidDomain(domain string) bool {
 			return false
 		}
 
-		// First character must be alphanumeric
+		// The First character must be alphanumeric
 		if !isAlphaNumeric(rune(label[0])) {
 			return false
 		}
 
-		// Last character must be alphanumeric
+		// The Last character must be alphanumeric
 		if !isAlphaNumeric(rune(label[len(label)-1])) {
 			return false
 		}
@@ -397,7 +397,7 @@ func IsValidDomain(domain string) bool {
 		}
 	}
 
-	// Must have at least one dot and the last label must be all letters
+	// Must have at least one dot, and the last label must be all letters
 	parts := strings.Split(domain, ".")
 	if len(parts) < 2 {
 		return false

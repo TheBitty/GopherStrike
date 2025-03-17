@@ -75,30 +75,6 @@ type ScanConfig struct {
 }
 
 // NewDefaultConfig returns a ScanConfig with sensible defaults
-func NewDefaultConfig() *ScanConfig {
-	return &ScanConfig{
-		Threads:            10,
-		Timeout:            5 * time.Second,
-		MaxRetries:         2,
-		RetryDelay:         1 * time.Second,
-		ScanDepth:          1,
-		ResolveIPs:         true,
-		CheckHTTP:          true,
-		HTTPTimeout:        5 * time.Second,
-		HTTPRetries:        1,
-		FollowRedirects:    true,
-		MaxRedirects:       3,
-		UserAgent:          "GopherStrike/1.0",
-		OutputType:         "json",
-		VerboseOutput:      false,
-		RequestsPerSecond:  0, // 0 means no limit
-		ReportProgressFreq: 5,
-		IgnoreWildcardDNS:  true,
-		ValidateResults:    true,
-		HTTPMethods:        []string{"GET"},
-		EnableCaching:      true,
-	}
-}
 
 // Validate checks if the configuration is valid
 func (c *ScanConfig) Validate() error {
@@ -213,32 +189,4 @@ func (c *ScanConfig) WithProxy(proxyURL string) *ScanConfig {
 func (c *ScanConfig) WithDepth(depth int) *ScanConfig {
 	c.ScanDepth = depth
 	return c
-}
-
-// DefaultConfig defines default settings for the subdomain scanner
-var DefaultConfig = struct {
-	// Default thread count if not specified
-	ThreadCount int
-
-	// Default timeout in seconds
-	Timeout int
-
-	// Default output formats
-	OutputFormats []string
-
-	// Default verification timeout
-	DomainVerificationTimeoutSecs int
-
-	// Maximum thread count
-	MaxThreads int
-
-	// Default log directory
-	LogsDirectory string
-}{
-	ThreadCount:                   10,
-	Timeout:                       5,
-	OutputFormats:                 []string{FormatText, FormatJSON},
-	DomainVerificationTimeoutSecs: 3,
-	MaxThreads:                    100,
-	LogsDirectory:                 "logs/subdomains",
 }

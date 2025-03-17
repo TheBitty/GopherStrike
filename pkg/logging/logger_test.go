@@ -69,7 +69,7 @@ func TestLoggerLevelFiltering(t *testing.T) {
 	logger.Debug("This is a debug message")
 	logger.Info("This is an info message")
 
-	// Check if only INFO message was logged
+	// Check if only an INFO message was logged
 	output := buf.String()
 
 	if strings.Contains(output, "DEBUG") {
@@ -87,7 +87,12 @@ func TestLoggerFileHandler(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create temp directory: %v", err)
 	}
-	defer os.RemoveAll(tempDir)
+	defer func(path string) {
+		err := os.RemoveAll(path)
+		if err != nil {
+
+		}
+	}(tempDir)
 
 	// Create a log file path
 	logPath := filepath.Join(tempDir, "test.log")
@@ -146,6 +151,9 @@ func TestGetModuleLogger(t *testing.T) {
 		t.Error("Log directory was not created")
 	} else {
 		// Clean up
-		os.RemoveAll(logDir)
+		err := os.RemoveAll(logDir)
+		if err != nil {
+			return
+		}
 	}
 }

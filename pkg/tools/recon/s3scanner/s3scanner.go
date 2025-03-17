@@ -1,4 +1,4 @@
-// pkg/tools/recon/s3scanner/s3scanner.go
+// Package s3scanner pkg/tools/recon/s3scanner/s3scanner.go
 package s3scanner
 
 import (
@@ -147,10 +147,10 @@ func (s *Scanner) ScanTarget(target string) ([]S3BucketResult, error) {
 
 // generateBucketNames creates a list of potential bucket names
 func (s *Scanner) generateBucketNames(target string) ([]string, error) {
-	buckets := []string{}
+	var buckets []string
 
 	// Clean the target (remove http/https, www, etc.)
-	target = strings.TrimPrefix(target, "http://")
+	target = strings.TrimPrefix(target, "https://")
 	target = strings.TrimPrefix(target, "https://")
 	target = strings.TrimPrefix(target, "www.")
 
@@ -224,10 +224,15 @@ func (s *Scanner) loadWordlist(target string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+
+		}
+	}(file)
 
 	scanner := bufio.NewScanner(file)
-	buckets := []string{}
+	var buckets []string
 
 	for scanner.Scan() {
 		pattern := scanner.Text()
@@ -255,7 +260,12 @@ func (s *Scanner) checkBucket(bucketName string) S3BucketResult {
 		result.Error = err.Error()
 		return result
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+
+		}
+	}(resp.Body)
 
 	// Bucket exists and is accessible
 	result.Accessible = resp.StatusCode != 404
@@ -287,7 +297,7 @@ func (s *Scanner) checkBucket(bucketName string) S3BucketResult {
 func extractObjectKeys(xmlContent string) []string {
 	// Basic extraction using string operations
 	// A full implementation would use XML parsing, but this simplified version works for demo purposes
-	keys := []string{}
+	var keys []string
 	keyStart := "<Key>"
 	keyEnd := "</Key>"
 
@@ -336,7 +346,12 @@ func (s *Scanner) saveResults() error {
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+
+		}
+	}(file)
 
 	// Write header
 	if _, err := file.WriteString("# S3 Bucket Scan Results\n"); err != nil {

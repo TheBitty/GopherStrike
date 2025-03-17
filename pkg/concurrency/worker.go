@@ -1,4 +1,4 @@
-// pkg/concurrency/worker.go
+// Package concurrency pkg/concurrency/worker.go
 package concurrency
 
 import (
@@ -18,7 +18,7 @@ type Task interface {
 	GetID() string
 }
 
-// Result represents the result of a task execution
+// The Result represents the result of a task execution
 type Result struct {
 	TaskID string
 	Value  interface{}
@@ -112,7 +112,7 @@ func (wp *WorkerPool) Submit(task Task) {
 	wp.taskQueue <- task
 }
 
-// Results returns the results channel
+// Results returns the result channel
 func (wp *WorkerPool) Results() <-chan Result {
 	return wp.results
 }

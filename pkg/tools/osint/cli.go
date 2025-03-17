@@ -1,4 +1,4 @@
-// pkg/tools/osint/cli.go
+// Package osint pkg/tools/osint/cli.go
 package osint
 
 import (
@@ -16,8 +16,8 @@ const (
 	LogDirectory = "logs/osint"
 )
 
-// OSINTCmdOptions holds command line options for the OSINT tool
-type OSINTCmdOptions struct {
+// CmdOptions OSINTCmdOptions holds command line options for the OSINT tool
+type CmdOptions struct {
 	Target              string
 	ScanType            string
 	APIKey              string
@@ -34,7 +34,7 @@ func RunOSINTScanner() error {
 	fmt.Println("===================================")
 
 	// Initialize options
-	options := OSINTCmdOptions{
+	options := CmdOptions{
 		ConfidenceThreshold: 0.6,
 		OutputFormat:        "text",
 	}
@@ -462,7 +462,7 @@ func correlateResults() {
 }
 
 // configureSettings allows changing OSINT tool settings
-func configureSettings(options *OSINTCmdOptions) {
+func configureSettings(options *CmdOptions) {
 	fmt.Println("\n--- Settings ---")
 	fmt.Printf("1. NVD API Key: %s\n", maskString(options.APIKey))
 	fmt.Printf("2. Confidence Threshold: %.1f\n", options.ConfidenceThreshold)

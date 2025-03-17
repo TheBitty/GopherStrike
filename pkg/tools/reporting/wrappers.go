@@ -1,4 +1,4 @@
-// pkg/tools/reporting/wrappers.go
+// Package reporting pkg/tools/reporting/wrappers.go
 package reporting
 
 import (

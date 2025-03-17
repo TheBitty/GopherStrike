@@ -1,4 +1,4 @@
-// utils/input.go
+// Package utils utils/input.go
 package utils
 
 import (
@@ -27,7 +27,7 @@ func WaitForKeyPress(key tcell.Key) {
 	screen, err := tcell.NewScreen()
 	if err != nil {
 		// Screen creation failed - fall back to basic console input
-		fmt.Fprintf(os.Stderr, "Warning: Could not create screen: %v\n", err)
+		_, _ = fmt.Fprintf(os.Stderr, "Warning: Could not create screen: %v\n", err)
 		fmt.Println("Press ENTER to continue...")
 
 		reader := bufio.NewReader(os.Stdin)
@@ -38,7 +38,7 @@ func WaitForKeyPress(key tcell.Key) {
 	// Try to initialize the screen
 	if err = screen.Init(); err != nil {
 		// Screen initialization failed - fall back to basic console input
-		fmt.Fprintf(os.Stderr, "Warning: Could not initialize screen: %v\n", err)
+		_, _ = fmt.Fprintf(os.Stderr, "Warning: Could not initialize screen: %v\n", err)
 		fmt.Println("Press ENTER to continue...")
 
 		reader := bufio.NewReader(os.Stdin)
@@ -135,49 +135,6 @@ func WaitForKeyPress(key tcell.Key) {
 
 // CheckForEscape checks if the ESC key is pressed
 // Returns true if ESC was pressed, false if timeout occurred
-func CheckForEscape(timeout time.Duration) bool {
-	// Try to create a screen
-	screen, err := tcell.NewScreen()
-	if err != nil {
-		// Screen creation failed, return false to indicate no ESC press
-		return false
-	}
-
-	// Try to initialize the screen
-	if err = screen.Init(); err != nil {
-		// Screen initialization failed, return false to indicate no ESC press
-		return false
-	}
-
-	defer screen.Fini()
-
-	// Create a timer for timeout
-	timer := time.NewTimer(timeout)
-	defer timer.Stop()
-
-	// Channel for key events
-	keyChan := make(chan tcell.Key)
-
-	// Start goroutine to listen for key events
-	go func() {
-		for {
-			ev := screen.PollEvent()
-			switch ev := ev.(type) {
-			case *tcell.EventKey:
-				keyChan <- ev.Key()
-				return
-			}
-		}
-	}()
-
-	// Wait for either a key press or timeout
-	select {
-	case key := <-keyChan:
-		return key == tcell.KeyEscape
-	case <-timer.C:
-		return false
-	}
-}
 
 // StartInterruptListener starts listening for Ctrl+C to interrupt running tools
 // Returns a channel that will be closed when an interrupt is detected

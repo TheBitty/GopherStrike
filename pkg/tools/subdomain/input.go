@@ -1,4 +1,4 @@
-// pkg/subdomain/input.go
+// Package subdomain pkg/subdomain/input.go
 package subdomain
 
 import (
@@ -194,7 +194,10 @@ func GetWordlistPath() (string, error) {
 			fmt.Printf("Wordlist has %d entries\n", lineCount)
 		}
 
-		file.Close()
+		err = file.Close()
+		if err != nil {
+			return "", err
+		}
 
 		// Validate basic content
 		if lineCount == 0 {

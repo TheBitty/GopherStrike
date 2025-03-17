@@ -1,4 +1,4 @@
-// pkg/tools/recon/emailharvester/emailharvester.go
+// Package emailharvester pkg/tools/recon/emailharvester/emailharvester.go
 package emailharvester
 
 import (
@@ -159,7 +159,12 @@ func (h *EmailHarvester) processURL(url string, depth int) {
 	if err != nil {
 		return
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+
+		}
+	}(resp.Body)
 
 	// Read the response body
 	body, err := io.ReadAll(resp.Body)
@@ -317,7 +322,7 @@ func (h *EmailHarvester) isDomainRelevant(url string) bool {
 
 // generateSearchEngineURLs creates URLs for search engine queries
 func (h *EmailHarvester) generateSearchEngineURLs(domain string) []string {
-	urls := []string{}
+	var urls []string
 
 	// Google search (note: this is simplified and might not work due to Google's anti-scraping measures)
 	googleQuery := fmt.Sprintf("https://www.google.com/search?q=%%22%s%%22+email+OR+contact+OR+%%22@%s%%22",
@@ -376,7 +381,12 @@ func (h *EmailHarvester) saveResults(results []EmailResult) error {
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+
+		}
+	}(file)
 
 	// Write header
 	if _, err := file.WriteString("# Email Harvesting Results\n"); err != nil {

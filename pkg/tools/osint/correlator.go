@@ -1,4 +1,4 @@
-// pkg/tools/osint/correlator.go
+// Package osint pkg/tools/osint/correlator.go
 package osint
 
 import (
@@ -9,12 +9,6 @@ import (
 
 // ConfidenceLevel represents a confidence level for a match
 type ConfidenceLevel string
-
-const (
-	ConfidenceHigh   ConfidenceLevel = "High"
-	ConfidenceMedium ConfidenceLevel = "Medium"
-	ConfidenceLow    ConfidenceLevel = "Low"
-)
 
 // Correlator is the correlation engine that matches server/firmware info with vulnerabilities
 type Correlator struct {

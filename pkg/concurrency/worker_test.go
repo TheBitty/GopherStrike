@@ -1,6 +1,7 @@
 package concurrency
 
 import (
+	"errors"
 	"fmt"
 	"sync"
 	"testing"
@@ -110,13 +111,14 @@ func TestWorkerPoolPanic(t *testing.T) {
 		t.Error("Expected error from panic task, got nil")
 	}
 
-	// Check error type
-	panicErr, ok := resultErr.(ErrTaskPanic)
+	// Check an error type
+	var panicErr ErrTaskPanic
+	ok := errors.As(resultErr, &panicErr)
 	if !ok {
 		t.Errorf("Expected ErrTaskPanic, got %T", resultErr)
 	}
 
-	// Check error message
+	// Check an error message
 	if panicErr.TaskID != "panic-task" {
 		t.Errorf("Expected TaskID panic-task, got %s", panicErr.TaskID)
 	}

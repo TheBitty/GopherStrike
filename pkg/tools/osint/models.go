@@ -1,4 +1,4 @@
-// pkg/tools/osint/models.go
+// Package osint pkg/tools/osint/models.go
 package osint
 
 import (

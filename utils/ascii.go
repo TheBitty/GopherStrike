@@ -1,4 +1,4 @@
-// Define this in utils/ascii.go or a new file like utils/ui.go
+// Package utils Define this in utils/ascii.go or a new file like utils/ui.go
 package utils
 
 // ToolBanners contains ASCII art for each tool

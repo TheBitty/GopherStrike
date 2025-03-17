@@ -27,14 +27,10 @@ const (
 type VulnerabilityStatus string
 
 const (
-	StatusOpen       VulnerabilityStatus = "Open"
-	StatusConfirmed  VulnerabilityStatus = "Confirmed"
-	StatusDuplicate  VulnerabilityStatus = "Duplicate"
-	StatusFixed      VulnerabilityStatus = "Fixed"
-	StatusInProgress VulnerabilityStatus = "In Progress"
+	StatusOpen VulnerabilityStatus = "Open"
 )
 
-// Define DefaultFormat as the default report format
+// DefaultFormat Define DefaultFormat as the default report format
 const DefaultFormat = FormatMarkdown
 
 // Evidence represents evidence for a vulnerability
@@ -204,7 +200,7 @@ func (r *ReportGenerator) generateSummary(report *Report) string {
 
 	// Add severity breakdown
 	severities := []VulnerabilitySeverity{SeverityCritical, SeverityHigh, SeverityMedium, SeverityLow, SeverityInfo}
-	counts := []string{}
+	var counts []string
 
 	for _, severity := range severities {
 		count := report.SeverityCounts[severity]
@@ -652,7 +648,7 @@ func RunReportGenerator() error {
 		includeSamples = "y"
 	}
 
-	options.IncludeSampleRecommendations = (includeSamples != "n" && includeSamples != "N")
+	options.IncludeSampleRecommendations = includeSamples != "n" && includeSamples != "N"
 
 	// Create report generator
 	reportGen := NewReportGenerator(options)

@@ -108,7 +108,7 @@ type DependencyCheckerConfig struct {
 	VerboseDependencyLog bool `yaml:"verbose_dependency_log"`
 }
 
-// Global configuration instance
+// Config Global configuration instance
 var Config = DefaultConfig()
 
 // DefaultConfig returns a configuration with default values
@@ -206,12 +206,12 @@ func LoadConfig() error {
 	// Load default configuration
 	Config = DefaultConfig()
 
-	// Create directories for config file if they don't exist
+	// Create directories for a config file if they don't exist
 	homeDir, err := os.UserHomeDir()
 	if err == nil {
 		configDir := filepath.Join(homeDir, ".gopherstrike")
 		if err := os.MkdirAll(configDir, 0755); err != nil {
-			// Just log the error, but continue execution as this is initialization
+			// Log the error, but continue execution as this is an initialization
 			fmt.Printf("Warning: Failed to create config directory: %v\n", err)
 		}
 		if err := os.MkdirAll(filepath.Join(configDir, "logs"), 0755); err != nil {
@@ -230,7 +230,7 @@ func LoadConfig() error {
 		}
 	}
 
-	// Load configuration from file if specified
+	// Load configuration from a file if specified
 	if *configFile != "" {
 		if err := loadConfigFromFile(*configFile); err != nil {
 			return fmt.Errorf("failed to load config file: %v", err)
@@ -267,32 +267,3 @@ func loadConfigFromFile(filePath string) error {
 
 // GetConfigValue returns a configuration value as a string based on the path
 // Example: GetConfigValue("logging.level") returns Config.Logging.Level
-func GetConfigValue(path string) string {
-	switch {
-	case path == "logging.level":
-		return Config.Logging.Level
-	case path == "logging.file":
-		return Config.Logging.File
-	case path == "logging.color_mode":
-		return Config.Logging.ColorMode
-
-	case path == "tools.port_scanner.default_timeout":
-		return Config.Tools.PortScanner.DefaultTimeout
-	case path == "tools.port_scanner.threads":
-		return fmt.Sprintf("%d", Config.Tools.PortScanner.Threads)
-	case path == "tools.port_scanner.default_range":
-		return Config.Tools.PortScanner.DefaultRange
-
-	case path == "tools.subdomain_scanner.wordlist":
-		return Config.Tools.SubdomainScanner.Wordlist
-	case path == "tools.subdomain_scanner.threads":
-		return fmt.Sprintf("%d", Config.Tools.SubdomainScanner.Threads)
-	case path == "tools.subdomain_scanner.timeout":
-		return Config.Tools.SubdomainScanner.Timeout
-
-	// Add more cases as needed for other config paths
-
-	default:
-		return ""
-	}
-}

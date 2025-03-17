@@ -495,9 +495,8 @@ func RunDirBruteforce() error {
 	if targetURL == "" {
 		return fmt.Errorf("target URL is required")
 	}
-
-	// Ensure URL has a proper scheme
-	if !strings.HasPrefix(targetURL, "https://") && !strings.HasPrefix(targetURL, "https://") {
+	//fixed for the lint
+	if !strings.HasPrefix(targetURL, "http://") && !strings.HasPrefix(targetURL, "https://") {
 		targetURL = "https://" + targetURL
 	}
 

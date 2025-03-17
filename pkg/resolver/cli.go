@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -468,7 +469,12 @@ func loadHostnamesFromFile(filePath string) ([]string, error) {
 func getInput(prompt string) string {
 	fmt.Printf("%s: ", prompt)
 	reader := bufio.NewReader(os.Stdin)
-	input, _ := reader.ReadString('\n')
+	input, err := reader.ReadString('\n')
+	if err != nil {
+		// Handle error - maybe return a default value or log the error
+		log.Printf("Error reading input: %v", err)
+		return ""
+	}
 	return strings.TrimSpace(input)
 }
 

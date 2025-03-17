@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -126,10 +127,10 @@ func (c *NVDConnector) Search(query SearchQuery) ([]Vulnerability, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error making request: %v", err)
 	}
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
 
+	defer func(Body io.ReadCloser) {
+		if err := Body.Close(); err != nil {
+			log.Printf("Error closing response body: %v", err)
 		}
 	}(resp.Body)
 

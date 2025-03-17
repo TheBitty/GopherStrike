@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"log"
 	"net"
 	"net/http"
 	"regexp"
@@ -183,9 +184,8 @@ func getBanner(host string, port int) (string, string) {
 		return "", ""
 	}
 	defer func(conn net.Conn) {
-		err := conn.Close()
-		if err != nil {
-
+		if err := conn.Close(); err != nil {
+			log.Printf("Error closing connection: %v", err)
 		}
 	}(conn)
 
